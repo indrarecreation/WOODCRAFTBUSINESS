@@ -1,37 +1,54 @@
 /*
+ * ============================================================
  * WOODCRAFT CUSTOMER WEBSITE
+ * ============================================================
  *
  * Product display:
  * Google Sheets → Apps Script → Website
  *
- * Order creation:
- * Website → Apps Script
+ * Secure order/payment flow:
+ *
+ * Website
+ *    ↓
+ * Apps Script createOrder
+ *    ↓
+ * Apps Script createRazorpayOrder
+ *    ↓
+ * Razorpay Checkout
+ *    ↓
+ * Apps Script verifyRazorpayPayment
+ *    ↓
+ * Payment PAID
+ *    ↓
+ * Order CONFIRMED
  *
  * IMPORTANT:
- * Browser prices are NOT trusted by the backend.
+ * Browser prices are NOT trusted by backend.
+ * Browser payment success is NOT trusted by backend.
+ * ============================================================
  */
 
 
-// =====================================================
-// BACKEND URL
-// =====================================================
+/* ============================================================
+   BACKEND URL
+============================================================ */
 
 const API_URL =
   "https://script.google.com/macros/s/AKfycbwAx9mO8Zp3laWdzDN_MD3b7azHuKWXPX5_KsXrofFxq2nbWoNb-3qB28CZimpnCIsGuA/exec";
 
 
-// =====================================================
-// STATE
-// =====================================================
+/* ============================================================
+   STATE
+============================================================ */
 
 let products = [];
 
 let cart = [];
 
 
-// =====================================================
-// START
-// =====================================================
+/* ============================================================
+   START
+============================================================ */
 
 document.addEventListener(
   "DOMContentLoaded",
@@ -45,9 +62,9 @@ document.addEventListener(
 );
 
 
-// =====================================================
-// LOAD PRODUCTS
-// =====================================================
+/* ============================================================
+   LOAD PRODUCTS
+============================================================ */
 
 async function loadProducts() {
 
@@ -118,9 +135,9 @@ async function loadProducts() {
 }
 
 
-// =====================================================
-// RENDER PRODUCTS
-// =====================================================
+/* ============================================================
+   RENDER PRODUCTS
+============================================================ */
 
 function renderProducts() {
 
@@ -192,18 +209,15 @@ function renderProducts() {
             alt="${productName}"
           >
 
-
           <div class="product-info">
 
             <h3>
               ${productName}
             </h3>
 
-
             <p class="product-description">
               ${description}
             </p>
-
 
             <div class="product-price">
 
@@ -211,19 +225,17 @@ function renderProducts() {
                 ₹${offerPrice.toFixed(2)}
               </span>
 
-
               ${
                 offerPrice < price
                   ? `
                     <span class="original-price">
                       ₹${price.toFixed(2)}
                     </span>
-                    `
+                  `
                   : ""
               }
 
             </div>
-
 
             <button
               class="add-cart-button"
@@ -243,9 +255,9 @@ function renderProducts() {
 }
 
 
-// =====================================================
-// ADD TO CART
-// =====================================================
+/* ============================================================
+   ADD TO CART
+============================================================ */
 
 function addToCart(productId) {
 
@@ -303,9 +315,9 @@ function addToCart(productId) {
 }
 
 
-// =====================================================
-// REMOVE FROM CART
-// =====================================================
+/* ============================================================
+   REMOVE FROM CART
+============================================================ */
 
 function removeFromCart(productId) {
 
@@ -322,9 +334,9 @@ function removeFromCart(productId) {
 }
 
 
-// =====================================================
-// RENDER CART
-// =====================================================
+/* ============================================================
+   RENDER CART
+============================================================ */
 
 function renderCart() {
 
@@ -425,7 +437,6 @@ function renderCart() {
 
           </div>
 
-
           <button
             onclick="removeFromCart(
               '${escapeHTML(
@@ -445,9 +456,9 @@ function renderCart() {
 }
 
 
-// =====================================================
-// PRODUCT PRICE FOR DISPLAY ONLY
-// =====================================================
+/* ============================================================
+   PRODUCT PRICE FOR DISPLAY ONLY
+============================================================ */
 
 function getProductSellingPrice(product) {
 
@@ -474,9 +485,9 @@ function getProductSellingPrice(product) {
 }
 
 
-// =====================================================
-// CART DRAWER
-// =====================================================
+/* ============================================================
+   CART DRAWER
+============================================================ */
 
 function openCart() {
 
@@ -514,9 +525,9 @@ function closeCart() {
 }
 
 
-// =====================================================
-// OPEN CHECKOUT
-// =====================================================
+/* ============================================================
+   OPEN CHECKOUT
+============================================================ */
 
 function startCheckout() {
 
@@ -540,9 +551,9 @@ function startCheckout() {
 }
 
 
-// =====================================================
-// CLOSE CHECKOUT
-// =====================================================
+/* ============================================================
+   CLOSE CHECKOUT
+============================================================ */
 
 function closeCheckout() {
 
@@ -555,9 +566,9 @@ function closeCheckout() {
 }
 
 
-// =====================================================
-// UPDATE CHECKOUT TOTAL
-// =====================================================
+/* ============================================================
+   UPDATE CHECKOUT TOTAL
+============================================================ */
 
 function updateCheckoutTotal() {
 
@@ -583,9 +594,9 @@ function updateCheckoutTotal() {
 }
 
 
-// =====================================================
-// SUBMIT ORDER
-// =====================================================
+/* ============================================================
+   SUBMIT ORDER
+============================================================ */
 
 async function submitOrder(event) {
 
@@ -672,9 +683,11 @@ async function submitOrder(event) {
 
 
   /*
-   * We send ProductID + Quantity.
+   * IMPORTANT:
    *
-   * We do NOT trust the browser's price.
+   * Only ProductID + Quantity are sent.
+   *
+   * Browser price is NOT trusted.
    */
 
   const items =
@@ -690,6 +703,11 @@ async function submitOrder(event) {
 
 
   try {
+
+    /* --------------------------------------------------------
+       STEP 1
+       CREATE WOODCRAFT ORDER
+    -------------------------------------------------------- */
 
     const response =
       await fetch(
@@ -735,56 +753,189 @@ async function submitOrder(event) {
     }
 
 
-    /*
-     * Order successfully created.
-     */
-
-    document
-      .getElementById(
-        "checkoutOverlay"
-      )
-      .classList.remove("open");
+    const orderId =
+      data.order.OrderID;
 
 
-    document
-      .getElementById(
-        "successOrderId"
-      )
-      .textContent =
-        data.order.OrderID;
+    /* --------------------------------------------------------
+       STEP 2
+       CREATE RAZORPAY ORDER
+    -------------------------------------------------------- */
+
+    button.textContent =
+      "Preparing Payment...";
 
 
-    document
-      .getElementById(
-        "orderSuccessOverlay"
-      )
-      .classList.add("open");
+    const razorpayResponse =
+      await fetch(
+        API_URL,
+        {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
+
+          body:
+            JSON.stringify({
+
+              action:
+                "createRazorpayOrder",
+
+              OrderID:
+                orderId
+
+            })
+
+        }
+      );
 
 
-    /*
-     * Clear cart after server
-     * successfully creates order.
-     */
+    const razorpayData =
+      await razorpayResponse.json();
 
-    cart = [];
 
-    renderCart();
+    if (!razorpayData.success) {
+
+      throw new Error(
+        razorpayData.error ||
+        "Unable to create Razorpay order."
+      );
+
+    }
+
+
+    const razorpay =
+      razorpayData.razorpay;
+
+
+    /* --------------------------------------------------------
+       STEP 3
+       OPEN RAZORPAY CHECKOUT
+    -------------------------------------------------------- */
+
+    button.textContent =
+      "Opening Payment...";
+
+
+    if (
+      typeof Razorpay ===
+      "undefined"
+    ) {
+
+      throw new Error(
+        "Razorpay Checkout could not be loaded."
+      );
+
+    }
+
+
+    const options = {
+
+      key:
+        razorpay.keyId,
+
+      amount:
+        razorpay.amount,
+
+      currency:
+        razorpay.currency,
+
+      name:
+        "WOODCRAFT",
+
+      description:
+        "WOODCRAFT Order " + orderId,
+
+      order_id:
+        razorpay.orderId,
+
+
+      /* ------------------------------------------------------
+         PAYMENT SUCCESS
+      ------------------------------------------------------ */
+
+      handler:
+        async function(paymentResponse) {
+
+          await verifyPayment(
+            orderId,
+            paymentResponse
+          );
+
+        },
+
+
+      prefill: {
+
+        name:
+          customer.name,
+
+        contact:
+          customer.phone
+
+      },
+
+
+      notes: {
+
+        woodcraftOrderId:
+          orderId
+
+      },
+
+
+      theme: {
+
+        color:
+          "#8B5E3C"
+
+      },
+
+
+      modal: {
+
+        ondismiss:
+          function() {
+
+            showCheckoutMessage(
+              "Payment window closed. Your order is still pending payment."
+            );
+
+            button.disabled = false;
+
+            button.textContent =
+              "Continue to Payment";
+
+          }
+
+      }
+
+    };
+
+
+    const razorpayCheckout =
+      new Razorpay(options);
+
+
+    razorpayCheckout.open();
 
 
   } catch (error) {
 
     console.error(
-      "ORDER ERROR:",
+      "ORDER/PAYMENT ERROR:",
       error
     );
 
 
     showCheckoutMessage(
-      error.message
+      error.message ||
+      "Something went wrong."
     );
 
-
-  } finally {
 
     button.disabled = false;
 
@@ -796,9 +947,153 @@ async function submitOrder(event) {
 }
 
 
-// =====================================================
-// CHECKOUT MESSAGE
-// =====================================================
+/* ============================================================
+   VERIFY PAYMENT
+============================================================ */
+
+async function verifyPayment(
+  orderId,
+  paymentResponse
+) {
+
+  const button =
+    document.getElementById(
+      "placeOrderButton"
+    );
+
+
+  button.disabled = true;
+
+  button.textContent =
+    "Verifying Payment...";
+
+
+  showCheckoutMessage(
+    "Payment received. Verifying securely..."
+  );
+
+
+  try {
+
+    /* --------------------------------------------------------
+       SEND RAZORPAY RESPONSE TO SERVER
+    -------------------------------------------------------- */
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
+
+          body:
+            JSON.stringify({
+
+              action:
+                "verifyRazorpayPayment",
+
+              OrderID:
+                orderId,
+
+              razorpay_payment_id:
+                paymentResponse
+                  .razorpay_payment_id,
+
+              razorpay_order_id:
+                paymentResponse
+                  .razorpay_order_id,
+
+              razorpay_signature:
+                paymentResponse
+                  .razorpay_signature
+
+            })
+
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    /* --------------------------------------------------------
+       SERVER VERIFICATION FAILED
+    -------------------------------------------------------- */
+
+    if (!data.success) {
+
+      throw new Error(
+        data.error ||
+        "Payment verification failed."
+      );
+
+    }
+
+
+    /* --------------------------------------------------------
+       PAYMENT VERIFIED
+    -------------------------------------------------------- */
+
+    closeCheckout();
+
+
+    document
+      .getElementById(
+        "successOrderId"
+      )
+      .textContent =
+        orderId;
+
+
+    document
+      .getElementById(
+        "orderSuccessOverlay"
+      )
+      .classList.add("open");
+
+
+    /* --------------------------------------------------------
+       CLEAR CART ONLY AFTER VERIFIED PAYMENT
+    -------------------------------------------------------- */
+
+    cart = [];
+
+    renderCart();
+
+
+  } catch (error) {
+
+    console.error(
+      "PAYMENT VERIFICATION ERROR:",
+      error
+    );
+
+
+    showCheckoutMessage(
+      "Payment verification failed. " +
+      error.message
+    );
+
+
+    button.disabled = false;
+
+    button.textContent =
+      "Continue to Payment";
+
+  }
+
+}
+
+
+/* ============================================================
+   CHECKOUT MESSAGE
+============================================================ */
 
 function showCheckoutMessage(message) {
 
@@ -812,9 +1107,9 @@ function showCheckoutMessage(message) {
 }
 
 
-// =====================================================
-// ORDER SUCCESS CLOSE
-// =====================================================
+/* ============================================================
+   ORDER SUCCESS CLOSE
+============================================================ */
 
 function closeOrderSuccess() {
 
@@ -827,9 +1122,9 @@ function closeOrderSuccess() {
 }
 
 
-// =====================================================
-// HTML ESCAPE
-// =====================================================
+/* ============================================================
+   HTML ESCAPE
+============================================================ */
 
 function escapeHTML(value) {
 
