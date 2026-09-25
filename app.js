@@ -34,6 +34,31 @@ let cart = [];
 
 
 // =========================
+// TEST GOOGLE APPS SCRIPT
+// =========================
+
+async function testBackend() {
+
+    try {
+
+        const response = await fetch(API_URL);
+
+        const data = await response.json();
+
+        console.log("WOODCRAFT BACKEND:", data);
+
+    } catch (error) {
+
+        console.error(
+            "Backend connection failed:",
+            error
+        );
+
+    }
+
+}
+
+// =========================
 // PRODUCT DISPLAY
 // =========================
 
