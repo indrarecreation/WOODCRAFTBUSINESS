@@ -373,3 +373,4 @@ document.getElementById("instagramLink").href =
 
 renderProducts();
 renderCart();
+testBackend();
