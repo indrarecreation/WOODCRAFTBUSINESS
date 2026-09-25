@@ -1,423 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="description"
-          content="WOODCRAFT — handcrafted wooden products.">
+  <title>WOODCRAFT — Natural Wooden Combs</title>
 
-    <title>WOODCRAFT | Handcrafted Wooden Products</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap"
-          rel="stylesheet">
-
-    <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<!-- ================= HEADER ================= -->
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="container header-inner">
 
-<header class="topbar">
+      <a href="#" class="logo">
+        WOODCRAFT
+      </a>
 
-    <a href="#" class="brand">
-        <span>WOOD</span>CRAFT
-    </a>
-
-    <nav>
-        <a href="#shop">Shop</a>
+      <nav class="main-nav">
+        <a href="#home">Home</a>
+        <a href="#products">Products</a>
         <a href="#story">Our Story</a>
         <a href="#contact">Contact</a>
-    </nav>
+      </nav>
 
-    <button class="cart-btn" onclick="openCart()">
-        Cart <b id="cartCount">0</b>
-    </button>
+      <button class="cart-button" onclick="openCart()">
+        Cart <span id="cartCount">0</span>
+      </button>
 
-</header>
+    </div>
+  </header>
 
 
-<!-- ================= HERO ================= -->
+  <!-- HERO -->
+  <section id="home" class="hero">
 
-<section class="hero">
+    <div class="container hero-content">
 
-    <div class="hero-copy">
+      <p class="eyebrow">NATURAL • SIMPLE • WOODEN</p>
 
-        <span class="eyebrow">
-            HANDCRAFTED • NATURAL WOOD
-        </span>
+      <h1>
+        Crafted by Nature.<br>
+        Made for Your Hair.
+      </h1>
 
-        <h1>
-            Beautiful wood.<br>
-            <em>Made to last.</em>
-        </h1>
+      <p>
+        Natural wooden combs crafted with care for everyday use.
+      </p>
 
-        <p>
-            Thoughtfully crafted wooden products designed
-            for everyday use.
-        </p>
+      <a href="#products" class="primary-button">
+        Shop Products
+      </a>
 
-        <div class="hero-actions">
+    </div>
 
-            <a class="btn dark" href="#shop">
-                Explore Products
-            </a>
+  </section>
 
-            <a class="btn light" href="#story">
-                Our Story
-            </a>
 
+  <!-- PRODUCTS -->
+  <section id="products" class="section">
+
+    <div class="container">
+
+      <div class="section-heading">
+        <p class="eyebrow">OUR COLLECTION</p>
+        <h2>Wooden Comb Collection</h2>
+        <p>Products are loaded directly from our secure database.</p>
+      </div>
+
+      <div id="productsGrid" class="products-grid">
+
+        <div class="loading">
+          Loading products...
         </div>
 
-    </div>
-
-
-    <div class="hero-photo">
-
-        <img
-            id="heroImage"
-            src="https://raw.githubusercontent.com/indrarecreation/tripcore/9f1f964987fa2e9fd4c888fda89bacaf6766742b/ChatGPT%20Image%20Aug%2028%2C%202026%2C%2009_45_02%20PM.png"
-            alt="WoodCraft product"
-        >
-
-        <div class="floating-price">
-            From
-            <strong>
-                ₹<span id="heroPrice">79</span>
-            </strong>
-        </div>
+      </div>
 
     </div>
 
-</section>
+  </section>
 
 
-<!-- ================= PRODUCTS ================= -->
+  <!-- STORY -->
+  <section id="story" class="story-section">
 
-<section id="shop" class="shop section">
+    <div class="container">
 
-    <div class="section-head">
+      <p class="eyebrow">OUR STORY</p>
 
-        <div>
+      <h2>Made from Nature</h2>
 
-            <span class="eyebrow">
-                THE COLLECTION
-            </span>
-
-            <h2>
-                Wooden products for everyday life
-            </h2>
-
-        </div>
-
-        <p>
-            Explore our current collection of handcrafted
-            wooden products.
-        </p>
+      <p>
+        WOODCRAFT creates simple wooden grooming products with a focus
+        on natural materials, thoughtful craftsmanship and everyday use.
+      </p>
 
     </div>
 
-
-    <div id="productGrid" class="product-grid">
-
-        <!-- Products will be loaded from Google Sheets -->
-
-    </div>
-
-</section>
+  </section>
 
 
-<!-- ================= STORY ================= -->
+  <!-- CONTACT -->
+  <section id="contact" class="section contact-section">
 
-<section id="story" class="feature-band">
+    <div class="container">
 
-    <div>
+      <p class="eyebrow">CONTACT</p>
 
-        <span class="eyebrow">
-            WHY WOOD
-        </span>
+      <h2>We are here to help</h2>
 
-        <h2>
-            Natural texture.<br>
-            Human touch.
-        </h2>
+      <p>
+        Have a question about our products or your order?
+      </p>
 
-    </div>
+      <a
+        href="https://wa.me/"
+        target="_blank"
+        class="whatsapp-button">
+        WhatsApp
+      </a>
 
-
-    <div class="feature-copy">
-
-        <p>
-            Every piece carries the warmth and character
-            of natural wood. We focus on simple designs,
-            useful products and careful finishing.
-        </p>
-
-        <div class="mini-grid">
-
-            <div>
-                <b>01</b>
-                <span>Natural materials</span>
-            </div>
-
-            <div>
-                <b>02</b>
-                <span>Hand-finished feel</span>
-            </div>
-
-            <div>
-                <b>03</b>
-                <span>Useful design</span>
-            </div>
-
-        </div>
+      <a
+        href="#"
+        target="_blank"
+        class="instagram-button">
+        Instagram
+      </a>
 
     </div>
 
-</section>
+  </section>
 
 
-<!-- ================= CONTACT ================= -->
+  <!-- CART DRAWER -->
+  <div id="cartOverlay" class="cart-overlay" onclick="closeCart()"></div>
 
-<section id="contact" class="contact section">
+  <aside id="cartDrawer" class="cart-drawer">
 
-    <div>
+    <div class="cart-header">
 
-        <span class="eyebrow">
-            CONNECT
-        </span>
+      <h2>Your Cart</h2>
 
-        <h2>
-            Have a question?
-        </h2>
-
-        <p>
-            Contact us for product questions,
-            bulk orders or delivery assistance.
-        </p>
+      <button onclick="closeCart()">×</button>
 
     </div>
 
+    <div id="cartItems" class="cart-items">
 
-    <div class="contact-actions">
-
-        <a
-            id="whatsappLink"
-            class="social whatsapp"
-            target="_blank"
-            rel="noopener">
-            WhatsApp
-        </a>
-
-        <a
-            id="instagramLink"
-            class="social instagram"
-            target="_blank"
-            rel="noopener">
-            Instagram
-        </a>
+      <p>Your cart is empty.</p>
 
     </div>
 
-</section>
+    <div class="cart-footer">
 
+      <div class="cart-total">
+        <span>Total</span>
+        <strong id="cartTotal">₹0</strong>
+      </div>
 
-<!-- ================= FOOTER ================= -->
-
-<footer>
-
-    <div class="brand">
-        <span>WOOD</span>CRAFT
-    </div>
-
-    <p>
-        Handcrafted with care • © 2026 WoodCraft
-    </p>
-
-    <a href="admin/index.html" class="admin-link">
-        Admin
-    </a>
-
-</footer>
-
-
-<!-- ================= CART ================= -->
-
-<div id="cartDrawer" class="drawer">
-
-    <div class="drawer-panel">
-
-        <button
-            class="drawer-close"
-            onclick="closeCart()">
-            ×
-        </button>
-
-        <h2>Your Cart</h2>
-
-        <div id="cartItems"></div>
-
-        <div class="cart-summary">
-
-            <div>
-                <span>Subtotal</span>
-                <b>₹<span id="cartSubtotal">0</span></b>
-            </div>
-
-            <div>
-                <span>Discount</span>
-                <b>− ₹<span id="cartDiscount">0</span></b>
-            </div>
-
-            <div>
-                <span>Delivery</span>
-                <b>₹<span id="cartDelivery">0</span></b>
-            </div>
-
-            <div class="grand">
-                <span>Total</span>
-                <b>₹<span id="cartTotal">0</span></b>
-            </div>
-
-        </div>
-
-        <button
-            class="btn dark full"
-            onclick="showCheckout()">
-            Checkout
-        </button>
+      <button
+        id="checkoutButton"
+        class="primary-button full-width"
+        onclick="startCheckout()"
+        disabled>
+        Checkout
+      </button>
 
     </div>
 
-</div>
+  </aside>
 
 
-<!-- ================= CHECKOUT ================= -->
+  <!-- FOOTER -->
+  <footer class="site-footer">
 
-<div id="checkoutModal" class="modal">
+    <div class="container">
 
-    <div class="modal-card">
+      <strong>WOODCRAFT</strong>
 
-        <button
-            class="drawer-close"
-            onclick="closeCheckout()">
-            ×
-        </button>
+      <p>
+        Natural wooden grooming products.
+      </p>
 
-        <h2>Checkout</h2>
-
-        <p class="muted">
-            Enter your delivery details.
-        </p>
-
-
-        <form id="checkoutForm">
-
-            <label>
-                Name
-                <input id="customerName" required>
-            </label>
-
-            <label>
-                WhatsApp / Phone
-                <input
-                    id="phone"
-                    required
-                    inputmode="tel">
-            </label>
-
-            <label>
-                Address
-                <textarea
-                    id="shippingAddress"
-                    required>
-                </textarea>
-            </label>
-
-            <div class="two">
-
-                <label>
-                    Post Office
-                    <input id="postOffice" required>
-                </label>
-
-                <label>
-                    PIN
-                    <input
-                        id="pinCode"
-                        maxlength="6"
-                        required
-                        inputmode="numeric">
-                </label>
-
-            </div>
-
-            <label>
-                District
-                <input id="district" required>
-            </label>
-
-            <label>
-                Coupon Code
-                <span class="muted">(optional)</span>
-
-                <input
-                    id="coupon"
-                    placeholder="e.g. WOOD10">
-            </label>
-
-
-            <button
-                class="btn dark full"
-                type="submit">
-
-                Continue to Payment
-
-            </button>
-
-        </form>
-
-
-        <!-- PAYMENT AREA -->
-
-        <div
-            id="paymentBox"
-            class="payment-box hidden">
-
-            <h3>
-                Complete Payment
-            </h3>
-
-            <p>
-                Amount:
-                <b>
-                    ₹<span id="payAmount">0</span>
-                </b>
-            </p>
-
-            <div id="paymentStatus">
-                Payment required
-            </div>
-
-            <!-- Payment gateway will be connected here -->
-
-            <div id="paymentGatewayContainer"></div>
-
-            <small>
-                Your order will only be confirmed after
-                successful payment verification.
-            </small>
-
-        </div>
+      <p>
+        © 2026 WOODCRAFT. All rights reserved.
+      </p>
 
     </div>
 
-</div>
+  </footer>
 
 
-<script src="app.js"></script>
+  <script src="app.js"></script>
 
 </body>
 </html>
