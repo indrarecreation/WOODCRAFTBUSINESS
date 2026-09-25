@@ -1,16 +1,423 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="WOODCRAFT — handcrafted wooden products."><title>WOODCRAFT | Handcrafted Wood</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="WOODCRAFT — handcrafted wooden products.">
+
+    <title>WOODCRAFT | Handcrafted Wooden Products</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
 <body>
-<header class="topbar"><a class="brand" href="#"><span>WOOD</span>CRAFT</a><nav><a href="#shop">Shop</a><a href="#story">Our Wood</a><a href="#contact">Contact</a></nav><button class="cart-btn" onclick="openCart()">Cart <b id="cartCount">0</b></button></header>
-<section class="hero"><div class="hero-copy"><span class="eyebrow">HANDCRAFTED • NATURAL WOOD</span><h1>Beautiful wood.<br><em>Made to last.</em></h1><p>Thoughtfully crafted wooden products with a warm, natural finish and everyday usefulness.</p><div class="hero-actions"><a class="btn dark" href="#shop">Explore products</a><a class="btn light" href="#story">Why wood?</a></div><div class="hero-points"><span>✓ Handmade character</span><span>✓ Carefully packed</span><span>✓ Direct ordering</span></div></div><div class="hero-photo"><img id="heroImage" src="https://raw.githubusercontent.com/indrarecreation/tripcore/9f1f964987fa2e9fd4c888fda89bacaf6766742b/ChatGPT%20Image%20Aug%2028%2C%202026%2C%2009_45_02%20PM.png" alt="Woodcraft product"><div class="floating-price">From <strong>₹<span id="heroPrice">79</span></strong></div></div></section>
-<section id="shop" class="shop section"><div class="section-head"><div><span class="eyebrow">THE COLLECTION</span><h2>Wooden products for everyday life</h2></div><p>Browse our current collection. Products, prices, offers and delivery are managed from the store admin panel.</p></div><div id="productGrid" class="product-grid"></div></section>
-<section class="feature-band" id="story"><div><span class="eyebrow">WHY WOOD</span><h2>Natural texture.<br>Human touch.</h2></div><div class="feature-copy"><p>Every piece keeps the warmth and character of real wood. We focus on simple designs, useful products and careful finishing.</p><div class="mini-grid"><div><b>01</b><span>Natural materials</span></div><div><b>02</b><span>Hand-finished feel</span></div><div><b>03</b><span>Simple, useful design</span></div></div></div></section>
-<section id="contact" class="contact section"><div><span class="eyebrow">CONNECT</span><h2>Have a question?</h2><p>Message us directly for product questions, bulk orders or delivery help.</p></div><div class="contact-actions"><a id="whatsappLink" class="social whatsapp" target="_blank" rel="noopener">WhatsApp us</a><a id="instagramLink" class="social instagram" target="_blank" rel="noopener">Instagram</a></div></section>
-<footer><div class="brand"><span>WOOD</span>CRAFT</div><p>Handcrafted with care • © 2026 WoodCraft</p><a class="admin-link" href="javascript:openAdmin()">Admin</a></footer>
-<div id="cartDrawer" class="drawer"><div class="drawer-panel"><button class="drawer-close" onclick="closeCart()">×</button><h2>Your cart</h2><div id="cartItems"></div><div class="cart-summary"><div><span>Subtotal</span><b>₹<span id="cartSubtotal">0</span></b></div><div><span>Discount</span><b>− ₹<span id="cartDiscount">0</span></b></div><div><span>Delivery</span><b>₹<span id="cartDelivery">0</span></b></div><div class="grand"><span>Total</span><b>₹<span id="cartTotal">0</span></b></div></div><button class="btn dark full" onclick="showCheckout()">Checkout</button></div></div>
-<div id="checkoutModal" class="modal"><div class="modal-card"><button class="drawer-close" onclick="closeCheckout()">×</button><h2>Checkout</h2><p class="muted">Enter delivery details. You will then receive the UPI payment option.</p>
-<form id="checkoutForm"><label>Name<input id="customerName" required></label><label>WhatsApp / Phone<input id="phone" required inputmode="tel"></label><label>Address<textarea id="shippingAddress" required></textarea></label><div class="two"><label>Post Office<input id="postOffice" required></label><label>PIN<input id="pinCode" maxlength="6" required inputmode="numeric"></label></div><label>District<input id="district" required></label><label>Coupon code <span class="muted">(optional)</span><input id="coupon" placeholder="e.g. WOOD10"></label><button class="btn dark full" type="submit">Continue to payment</button></form>
-<div id="paymentBox" class="payment-box hidden"><h3>Pay by UPI</h3><p>Total: <b>₹<span id="payAmount">0</span></b></p><img id="qrImage" alt="UPI QR"><p class="upi">UPI ID: <b id="upiId">—</b></p><button class="btn green full" onclick="placeOrder()">✓ I HAVE PAID — PLACE ORDER</button><small>Payment is a customer claim. Verify the bank/UPI transaction before dispatch.</small></div></div></div>
-<iframe id="saveFrame" name="saveFrame" style="display:none"></iframe><script src="app.js"></script></body></html>
+
+<!-- ================= HEADER ================= -->
+
+<header class="topbar">
+
+    <a href="#" class="brand">
+        <span>WOOD</span>CRAFT
+    </a>
+
+    <nav>
+        <a href="#shop">Shop</a>
+        <a href="#story">Our Story</a>
+        <a href="#contact">Contact</a>
+    </nav>
+
+    <button class="cart-btn" onclick="openCart()">
+        Cart <b id="cartCount">0</b>
+    </button>
+
+</header>
+
+
+<!-- ================= HERO ================= -->
+
+<section class="hero">
+
+    <div class="hero-copy">
+
+        <span class="eyebrow">
+            HANDCRAFTED • NATURAL WOOD
+        </span>
+
+        <h1>
+            Beautiful wood.<br>
+            <em>Made to last.</em>
+        </h1>
+
+        <p>
+            Thoughtfully crafted wooden products designed
+            for everyday use.
+        </p>
+
+        <div class="hero-actions">
+
+            <a class="btn dark" href="#shop">
+                Explore Products
+            </a>
+
+            <a class="btn light" href="#story">
+                Our Story
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="hero-photo">
+
+        <img
+            id="heroImage"
+            src="https://raw.githubusercontent.com/indrarecreation/tripcore/9f1f964987fa2e9fd4c888fda89bacaf6766742b/ChatGPT%20Image%20Aug%2028%2C%202026%2C%2009_45_02%20PM.png"
+            alt="WoodCraft product"
+        >
+
+        <div class="floating-price">
+            From
+            <strong>
+                ₹<span id="heroPrice">79</span>
+            </strong>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= PRODUCTS ================= -->
+
+<section id="shop" class="shop section">
+
+    <div class="section-head">
+
+        <div>
+
+            <span class="eyebrow">
+                THE COLLECTION
+            </span>
+
+            <h2>
+                Wooden products for everyday life
+            </h2>
+
+        </div>
+
+        <p>
+            Explore our current collection of handcrafted
+            wooden products.
+        </p>
+
+    </div>
+
+
+    <div id="productGrid" class="product-grid">
+
+        <!-- Products will be loaded from Google Sheets -->
+
+    </div>
+
+</section>
+
+
+<!-- ================= STORY ================= -->
+
+<section id="story" class="feature-band">
+
+    <div>
+
+        <span class="eyebrow">
+            WHY WOOD
+        </span>
+
+        <h2>
+            Natural texture.<br>
+            Human touch.
+        </h2>
+
+    </div>
+
+
+    <div class="feature-copy">
+
+        <p>
+            Every piece carries the warmth and character
+            of natural wood. We focus on simple designs,
+            useful products and careful finishing.
+        </p>
+
+        <div class="mini-grid">
+
+            <div>
+                <b>01</b>
+                <span>Natural materials</span>
+            </div>
+
+            <div>
+                <b>02</b>
+                <span>Hand-finished feel</span>
+            </div>
+
+            <div>
+                <b>03</b>
+                <span>Useful design</span>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= CONTACT ================= -->
+
+<section id="contact" class="contact section">
+
+    <div>
+
+        <span class="eyebrow">
+            CONNECT
+        </span>
+
+        <h2>
+            Have a question?
+        </h2>
+
+        <p>
+            Contact us for product questions,
+            bulk orders or delivery assistance.
+        </p>
+
+    </div>
+
+
+    <div class="contact-actions">
+
+        <a
+            id="whatsappLink"
+            class="social whatsapp"
+            target="_blank"
+            rel="noopener">
+            WhatsApp
+        </a>
+
+        <a
+            id="instagramLink"
+            class="social instagram"
+            target="_blank"
+            rel="noopener">
+            Instagram
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer>
+
+    <div class="brand">
+        <span>WOOD</span>CRAFT
+    </div>
+
+    <p>
+        Handcrafted with care • © 2026 WoodCraft
+    </p>
+
+    <a href="admin/index.html" class="admin-link">
+        Admin
+    </a>
+
+</footer>
+
+
+<!-- ================= CART ================= -->
+
+<div id="cartDrawer" class="drawer">
+
+    <div class="drawer-panel">
+
+        <button
+            class="drawer-close"
+            onclick="closeCart()">
+            ×
+        </button>
+
+        <h2>Your Cart</h2>
+
+        <div id="cartItems"></div>
+
+        <div class="cart-summary">
+
+            <div>
+                <span>Subtotal</span>
+                <b>₹<span id="cartSubtotal">0</span></b>
+            </div>
+
+            <div>
+                <span>Discount</span>
+                <b>− ₹<span id="cartDiscount">0</span></b>
+            </div>
+
+            <div>
+                <span>Delivery</span>
+                <b>₹<span id="cartDelivery">0</span></b>
+            </div>
+
+            <div class="grand">
+                <span>Total</span>
+                <b>₹<span id="cartTotal">0</span></b>
+            </div>
+
+        </div>
+
+        <button
+            class="btn dark full"
+            onclick="showCheckout()">
+            Checkout
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- ================= CHECKOUT ================= -->
+
+<div id="checkoutModal" class="modal">
+
+    <div class="modal-card">
+
+        <button
+            class="drawer-close"
+            onclick="closeCheckout()">
+            ×
+        </button>
+
+        <h2>Checkout</h2>
+
+        <p class="muted">
+            Enter your delivery details.
+        </p>
+
+
+        <form id="checkoutForm">
+
+            <label>
+                Name
+                <input id="customerName" required>
+            </label>
+
+            <label>
+                WhatsApp / Phone
+                <input
+                    id="phone"
+                    required
+                    inputmode="tel">
+            </label>
+
+            <label>
+                Address
+                <textarea
+                    id="shippingAddress"
+                    required>
+                </textarea>
+            </label>
+
+            <div class="two">
+
+                <label>
+                    Post Office
+                    <input id="postOffice" required>
+                </label>
+
+                <label>
+                    PIN
+                    <input
+                        id="pinCode"
+                        maxlength="6"
+                        required
+                        inputmode="numeric">
+                </label>
+
+            </div>
+
+            <label>
+                District
+                <input id="district" required>
+            </label>
+
+            <label>
+                Coupon Code
+                <span class="muted">(optional)</span>
+
+                <input
+                    id="coupon"
+                    placeholder="e.g. WOOD10">
+            </label>
+
+
+            <button
+                class="btn dark full"
+                type="submit">
+
+                Continue to Payment
+
+            </button>
+
+        </form>
+
+
+        <!-- PAYMENT AREA -->
+
+        <div
+            id="paymentBox"
+            class="payment-box hidden">
+
+            <h3>
+                Complete Payment
+            </h3>
+
+            <p>
+                Amount:
+                <b>
+                    ₹<span id="payAmount">0</span>
+                </b>
+            </p>
+
+            <div id="paymentStatus">
+                Payment required
+            </div>
+
+            <!-- Payment gateway will be connected here -->
+
+            <div id="paymentGatewayContainer"></div>
+
+            <small>
+                Your order will only be confirmed after
+                successful payment verification.
+            </small>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+</html>
