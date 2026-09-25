@@ -1,8 +1,14 @@
 /*
  * WOODCRAFT CUSTOMER WEBSITE
  *
- * Products are loaded ONLY from
- * Google Sheets through Apps Script.
+ * Product display:
+ * Google Sheets → Apps Script → Website
+ *
+ * Order creation:
+ * Website → Apps Script
+ *
+ * IMPORTANT:
+ * Browser prices are NOT trusted by the backend.
  */
 
 
@@ -15,7 +21,7 @@ const API_URL =
 
 
 // =====================================================
-// APPLICATION STATE
+// STATE
 // =====================================================
 
 let products = [];
@@ -46,24 +52,24 @@ document.addEventListener(
 async function loadProducts() {
 
   const productsGrid =
-    document.getElementById("productsGrid");
+    document.getElementById(
+      "productsGrid"
+    );
+
 
   try {
 
-    const url =
-      API_URL + "?action=getProducts";
-
-
     const response =
-      await fetch(url, {
-        method: "GET"
-      });
+      await fetch(
+        API_URL +
+        "?action=getProducts"
+      );
 
 
     if (!response.ok) {
 
       throw new Error(
-        "Backend HTTP error: " +
+        "Backend error: " +
         response.status
       );
 
@@ -96,23 +102,14 @@ async function loadProducts() {
   } catch (error) {
 
     console.error(
-      "WOODCRAFT PRODUCT ERROR:",
+      "PRODUCT ERROR:",
       error
     );
 
 
     productsGrid.innerHTML = `
       <div class="loading">
-
-        <strong>
-          Products could not be loaded.
-        </strong>
-
-        <br><br>
-
-        Please check the Apps Script
-        connection.
-
+        Products could not be loaded.
       </div>
     `;
 
@@ -148,7 +145,6 @@ function renderProducts() {
 
   productsGrid.innerHTML =
     products.map(product => {
-
 
       const productId =
         escapeHTML(
@@ -196,21 +192,25 @@ function renderProducts() {
             alt="${productName}"
           >
 
+
           <div class="product-info">
 
             <h3>
               ${productName}
             </h3>
 
+
             <p class="product-description">
               ${description}
             </p>
+
 
             <div class="product-price">
 
               <span class="offer-price">
                 ₹${offerPrice.toFixed(2)}
               </span>
+
 
               ${
                 offerPrice < price
@@ -425,6 +425,7 @@ function renderCart() {
 
           </div>
 
+
           <button
             onclick="removeFromCart(
               '${escapeHTML(
@@ -445,7 +446,7 @@ function renderCart() {
 
 
 // =====================================================
-// PRODUCT PRICE
+// PRODUCT PRICE FOR DISPLAY ONLY
 // =====================================================
 
 function getProductSellingPrice(product) {
@@ -474,43 +475,47 @@ function getProductSellingPrice(product) {
 
 
 // =====================================================
-// OPEN CART
+// CART DRAWER
 // =====================================================
 
 function openCart() {
 
   document
-    .getElementById("cartDrawer")
+    .getElementById(
+      "cartDrawer"
+    )
     .classList.add("open");
 
 
   document
-    .getElementById("cartOverlay")
+    .getElementById(
+      "cartOverlay"
+    )
     .classList.add("open");
 
 }
 
-
-// =====================================================
-// CLOSE CART
-// =====================================================
 
 function closeCart() {
 
   document
-    .getElementById("cartDrawer")
+    .getElementById(
+      "cartDrawer"
+    )
     .classList.remove("open");
 
 
   document
-    .getElementById("cartOverlay")
+    .getElementById(
+      "cartOverlay"
+    )
     .classList.remove("open");
 
 }
 
 
 // =====================================================
-// CHECKOUT
+// OPEN CHECKOUT
 // =====================================================
 
 function startCheckout() {
@@ -520,9 +525,304 @@ function startCheckout() {
   }
 
 
-  alert(
-    "Checkout will be connected next."
-  );
+  closeCart();
+
+
+  updateCheckoutTotal();
+
+
+  document
+    .getElementById(
+      "checkoutOverlay"
+    )
+    .classList.add("open");
+
+}
+
+
+// =====================================================
+// CLOSE CHECKOUT
+// =====================================================
+
+function closeCheckout() {
+
+  document
+    .getElementById(
+      "checkoutOverlay"
+    )
+    .classList.remove("open");
+
+}
+
+
+// =====================================================
+// UPDATE CHECKOUT TOTAL
+// =====================================================
+
+function updateCheckoutTotal() {
+
+  const total =
+    cart.reduce(
+      (sum, item) =>
+        sum +
+        (
+          item.Price *
+          item.Quantity
+        ),
+      0
+    );
+
+
+  document
+    .getElementById(
+      "checkoutTotal"
+    )
+    .textContent =
+      `₹${total.toFixed(2)}`;
+
+}
+
+
+// =====================================================
+// SUBMIT ORDER
+// =====================================================
+
+async function submitOrder(event) {
+
+  event.preventDefault();
+
+
+  if (!cart.length) {
+
+    showCheckoutMessage(
+      "Your cart is empty."
+    );
+
+    return;
+
+  }
+
+
+  const button =
+    document.getElementById(
+      "placeOrderButton"
+    );
+
+
+  button.disabled = true;
+
+  button.textContent =
+    "Creating Order...";
+
+
+  showCheckoutMessage("");
+
+
+  const customer = {
+
+    name:
+      document
+        .getElementById(
+          "customerName"
+        )
+        .value
+        .trim(),
+
+    phone:
+      document
+        .getElementById(
+          "customerPhone"
+        )
+        .value
+        .trim(),
+
+    address:
+      document
+        .getElementById(
+          "customerAddress"
+        )
+        .value
+        .trim(),
+
+    postOffice:
+      document
+        .getElementById(
+          "customerPostOffice"
+        )
+        .value
+        .trim(),
+
+    pin:
+      document
+        .getElementById(
+          "customerPIN"
+        )
+        .value
+        .trim(),
+
+    district:
+      document
+        .getElementById(
+          "customerDistrict"
+        )
+        .value
+        .trim()
+
+  };
+
+
+  /*
+   * We send ProductID + Quantity.
+   *
+   * We do NOT trust the browser's price.
+   */
+
+  const items =
+    cart.map(item => ({
+
+      ProductID:
+        item.ProductID,
+
+      Quantity:
+        item.Quantity
+
+    }));
+
+
+  try {
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
+
+          body:
+            JSON.stringify({
+
+              action:
+                "createOrder",
+
+              customer:
+                customer,
+
+              items:
+                items
+
+            })
+
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (!data.success) {
+
+      throw new Error(
+        data.error ||
+        "Order creation failed"
+      );
+
+    }
+
+
+    /*
+     * Order successfully created.
+     */
+
+    document
+      .getElementById(
+        "checkoutOverlay"
+      )
+      .classList.remove("open");
+
+
+    document
+      .getElementById(
+        "successOrderId"
+      )
+      .textContent =
+        data.order.OrderID;
+
+
+    document
+      .getElementById(
+        "orderSuccessOverlay"
+      )
+      .classList.add("open");
+
+
+    /*
+     * Clear cart after server
+     * successfully creates order.
+     */
+
+    cart = [];
+
+    renderCart();
+
+
+  } catch (error) {
+
+    console.error(
+      "ORDER ERROR:",
+      error
+    );
+
+
+    showCheckoutMessage(
+      error.message
+    );
+
+
+  } finally {
+
+    button.disabled = false;
+
+    button.textContent =
+      "Continue to Payment";
+
+  }
+
+}
+
+
+// =====================================================
+// CHECKOUT MESSAGE
+// =====================================================
+
+function showCheckoutMessage(message) {
+
+  document
+    .getElementById(
+      "checkoutMessage"
+    )
+    .textContent =
+      message || "";
+
+}
+
+
+// =====================================================
+// ORDER SUCCESS CLOSE
+// =====================================================
+
+function closeOrderSuccess() {
+
+  document
+    .getElementById(
+      "orderSuccessOverlay"
+    )
+    .classList.remove("open");
 
 }
 
