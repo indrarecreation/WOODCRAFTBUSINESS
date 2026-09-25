@@ -1,68 +1,151 @@
-const products = [
-    {
-        id: "WC001",
-        name: "Handcrafted Lice Comb",
-        description: "Fine-tooth natural wooden comb.",
-        price: 79,
-        image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80"
-    },
-    {
-        id: "WC002",
-        name: "Premium Wooden Comb",
-        description: "Smooth-finished wooden comb.",
-        price: 129,
-        image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80"
-    },
-    {
-        id: "WC003",
-        name: "Natural Hair Comb",
-        description: "Lightweight everyday wooden comb.",
-        price: 99,
-        image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80"
-    }
-];
+// ==========================================
+// WOODCRAFT - APP.JS
+// ==========================================
+
+// 🔴 PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
+const API_URL = "https://script.google.com/macros/s/AKfycbw7tLFVzQN7SA1azHIK0r1MzudUMrs61c1NVau5b4erDj_YE8yVu09m8DCWr_vik91T/exec";
+
+
+// ==========================================
+// CART
+// ==========================================
 
 let cart = [];
 
 
-// =========================
-// PRODUCT DISPLAY
-// =========================
+// ==========================================
+// PRODUCTS
+// ==========================================
+
+let products = [];
+
+
+// ==========================================
+// LOAD PRODUCTS FROM GOOGLE SHEETS
+// ==========================================
+
+async function loadProducts() {
+
+    try {
+
+        const response = await fetch(API_URL, {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
+
+            body: JSON.stringify({
+                action: "getProducts"
+            })
+
+        });
+
+
+        const data = await response.json();
+
+
+        if (!data.success) {
+            throw new Error(data.error || "Failed to load products");
+        }
+
+
+        products = data.products || [];
+
+
+        renderProducts();
+
+    } catch (error) {
+
+        console.error("Product loading error:", error);
+
+        const productGrid = document.getElementById("productGrid");
+
+        if (productGrid) {
+
+            productGrid.innerHTML = `
+                <p style="text-align:center;">
+                    Unable to load products right now.
+                    Please try again later.
+                </p>
+            `;
+
+        }
+
+    }
+
+}
+
+
+// ==========================================
+// DISPLAY PRODUCTS
+// ==========================================
 
 function renderProducts() {
 
-    const grid = document.getElementById("productGrid");
+    const productGrid = document.getElementById("productGrid");
 
-    if (!grid) return;
+    if (!productGrid) return;
 
-    grid.innerHTML = products.map(product => `
+
+    if (products.length === 0) {
+
+        productGrid.innerHTML = `
+            <p>No products available.</p>
+        `;
+
+        return;
+
+    }
+
+
+    productGrid.innerHTML = products.map(product => `
 
         <article class="product-card">
 
             <div class="product-image">
+
                 <img
-                    src="${product.image}"
-                    alt="${product.name}">
+                    src="${product.image || ''}"
+                    alt="${product.name}"
+                >
+
             </div>
+
 
             <div class="product-info">
 
                 <h3>${product.name}</h3>
 
-                <p>
-                    ${product.description}
-                </p>
+                <p>${product.description || ''}</p>
+
 
                 <div class="product-price">
-                    ₹${product.price}
+
+                    <span class="current-price">
+                        ₹${product.price}
+                    </span>
+
+                    ${
+                        product.originalPrice &&
+                        product.originalPrice > product.price
+                        ?
+                        `<span class="old-price">
+                            ₹${product.originalPrice}
+                        </span>`
+                        :
+                        ''
+                    }
+
                 </div>
+
 
                 <button
                     class="add-btn"
-                    onclick="addToCart('${product.id}')">
-
-                    Add to Cart
-
+                    onclick="addToCart('${product.id}')"
+                >
+                    ADD TO CART
                 </button>
 
             </div>
@@ -70,273 +153,497 @@ function renderProducts() {
         </article>
 
     `).join("");
+
 }
 
 
-// =========================
-// CART
-// =========================
+// ==========================================
+// ADD TO CART
+// ==========================================
 
 function addToCart(productId) {
 
-    const product = products.find(p => p.id === productId);
+    const product = products.find(
+        p => String(p.id) === String(productId)
+    );
 
-    if (!product) return;
 
-    const existing = cart.find(item => item.id === productId);
+    if (!product) {
+
+        alert("Product not found.");
+
+        return;
+
+    }
+
+
+    const existing = cart.find(
+        item => String(item.id) === String(productId)
+    );
+
 
     if (existing) {
-        existing.quantity++;
+
+        existing.quantity += 1;
+
     } else {
+
         cart.push({
-            ...product,
+
+            id: product.id,
+            name: product.name,
+            price: Number(product.price),
+            image: product.image,
             quantity: 1
+
         });
+
     }
+
 
     renderCart();
 
     openCart();
+
 }
 
+
+// ==========================================
+// REMOVE FROM CART
+// ==========================================
 
 function removeFromCart(productId) {
 
-    cart = cart.filter(item => item.id !== productId);
+    cart = cart.filter(
+        item => String(item.id) !== String(productId)
+    );
+
 
     renderCart();
+
 }
 
 
-function changeQuantity(productId, amount) {
+// ==========================================
+// CHANGE QUANTITY
+// ==========================================
 
-    const item = cart.find(item => item.id === productId);
+function changeQuantity(productId, change) {
+
+    const item = cart.find(
+        item => String(item.id) === String(productId)
+    );
+
 
     if (!item) return;
 
-    item.quantity += amount;
+
+    item.quantity += change;
+
 
     if (item.quantity <= 0) {
+
         removeFromCart(productId);
+
         return;
+
     }
 
+
     renderCart();
+
 }
 
 
+// ==========================================
+// RENDER CART
+// ==========================================
+
 function renderCart() {
 
-    const container = document.getElementById("cartItems");
+    const cartItems = document.getElementById("cartItems");
 
-    const count = cart.reduce(
-        (total, item) => total + item.quantity,
-        0
-    );
+    const cartCount = document.getElementById("cartCount");
 
-    document.getElementById("cartCount").textContent = count;
 
-    if (!cart.length) {
+    if (!cartItems) return;
 
-        container.innerHTML = `
-            <p class="muted">
+
+    if (cart.length === 0) {
+
+        cartItems.innerHTML = `
+            <p class="empty-cart">
                 Your cart is empty.
             </p>
         `;
 
-        updateTotals();
-        return;
-    }
+    } else {
 
-    container.innerHTML = cart.map(item => `
+        cartItems.innerHTML = cart.map(item => `
 
-        <div class="cart-item">
+            <div class="cart-item">
 
-            <img src="${item.image}" alt="">
+                <img
+                    src="${item.image || ''}"
+                    alt="${item.name}"
+                >
 
-            <div class="cart-item-info">
 
-                <h4>${item.name}</h4>
+                <div class="cart-item-info">
 
-                <small>
-                    ₹${item.price} × ${item.quantity}
-                </small>
+                    <h4>${item.name}</h4>
 
-                <div style="margin-top:8px">
+                    <p>₹${item.price}</p>
 
-                    <button onclick="changeQuantity('${item.id}', -1)">
-                        −
-                    </button>
 
-                    <span style="margin:0 10px">
-                        ${item.quantity}
-                    </span>
+                    <div class="quantity-controls">
 
-                    <button onclick="changeQuantity('${item.id}', 1)">
-                        +
-                    </button>
+                        <button
+                            onclick="changeQuantity('${item.id}', -1)"
+                        >
+                            −
+                        </button>
 
-                    <button
-                        onclick="removeFromCart('${item.id}')"
-                        style="margin-left:15px">
 
-                        Remove
+                        <span>
+                            ${item.quantity}
+                        </span>
 
-                    </button>
+
+                        <button
+                            onclick="changeQuantity('${item.id}', 1)"
+                        >
+                            +
+                        </button>
+
+                    </div>
 
                 </div>
 
+
+                <button
+                    class="remove-btn"
+                    onclick="removeFromCart('${item.id}')"
+                >
+                    ×
+                </button>
+
             </div>
 
-        </div>
+        `).join("");
 
-    `).join("");
+    }
+
+
+    if (cartCount) {
+
+        const count = cart.reduce(
+            (total, item) => total + item.quantity,
+            0
+        );
+
+        cartCount.textContent = count;
+
+    }
+
 
     updateTotals();
+
 }
 
+
+// ==========================================
+// UPDATE TOTALS
+// ==========================================
 
 function updateTotals() {
 
+    const subtotalElement =
+        document.getElementById("cartSubtotal");
+
+    const deliveryElement =
+        document.getElementById("cartDelivery");
+
+    const totalElement =
+        document.getElementById("cartTotal");
+
+
     const subtotal = cart.reduce(
-        (sum, item) => sum + item.price * item.quantity,
+
+        (total, item) =>
+            total + (item.price * item.quantity),
+
         0
+
     );
 
-    const delivery = subtotal > 0 ? 50 : 0;
 
-    const discount = 0;
+    const delivery = cart.length > 0 ? 50 : 0;
 
-    const total = subtotal - discount + delivery;
 
-    document.getElementById("cartSubtotal").textContent = subtotal;
-    document.getElementById("cartDiscount").textContent = discount;
-    document.getElementById("cartDelivery").textContent = delivery;
-    document.getElementById("cartTotal").textContent = total;
+    const total = subtotal + delivery;
+
+
+    if (subtotalElement) {
+
+        subtotalElement.textContent =
+            `₹${subtotal}`;
+
+    }
+
+
+    if (deliveryElement) {
+
+        deliveryElement.textContent =
+            `₹${delivery}`;
+
+    }
+
+
+    if (totalElement) {
+
+        totalElement.textContent =
+            `₹${total}`;
+
+    }
+
 }
 
 
-// =========================
-// CART DRAWER
-// =========================
+// ==========================================
+// OPEN CART
+// ==========================================
 
 function openCart() {
 
-    document
-        .getElementById("cartDrawer")
-        .classList.add("active");
+    const drawer =
+        document.getElementById("cartDrawer");
+
+    if (drawer) {
+
+        drawer.classList.add("open");
+
+    }
 
 }
 
+
+// ==========================================
+// CLOSE CART
+// ==========================================
 
 function closeCart() {
 
-    document
-        .getElementById("cartDrawer")
-        .classList.remove("active");
+    const drawer =
+        document.getElementById("cartDrawer");
+
+    if (drawer) {
+
+        drawer.classList.remove("open");
+
+    }
 
 }
 
 
-// =========================
+// ==========================================
 // CHECKOUT
-// =========================
+// ==========================================
 
 function showCheckout() {
 
-    if (!cart.length) {
+    if (cart.length === 0) {
 
         alert("Your cart is empty.");
 
         return;
+
     }
+
 
     closeCart();
 
-    document
-        .getElementById("checkoutModal")
-        .classList.add("active");
+
+    const checkout =
+        document.getElementById("checkoutModal");
+
+
+    if (checkout) {
+
+        checkout.classList.add("open");
+
+    }
+
 }
 
+
+// ==========================================
+// CLOSE CHECKOUT
+// ==========================================
 
 function closeCheckout() {
 
-    document
-        .getElementById("checkoutModal")
-        .classList.remove("active");
+    const checkout =
+        document.getElementById("checkoutModal");
+
+
+    if (checkout) {
+
+        checkout.classList.remove("open");
+
+    }
+
 }
 
 
-// =========================
-// CHECKOUT FORM
-// =========================
+// ==========================================
+// PLACE ORDER
+// ==========================================
 
-document
-    .getElementById("checkoutForm")
-    .addEventListener("submit", async function(event) {
+async function placeOrder() {
 
-        event.preventDefault();
+    if (cart.length === 0) {
 
-        if (!cart.length) {
-            alert("Your cart is empty.");
-            return;
+        alert("Your cart is empty.");
+
+        return;
+
+    }
+
+
+    const name =
+        document.getElementById("customerName")?.value.trim();
+
+
+    const phone =
+        document.getElementById("customerPhone")?.value.trim();
+
+
+    const address =
+        document.getElementById("customerAddress")?.value.trim();
+
+
+    const postOffice =
+        document.getElementById("postOffice")?.value.trim();
+
+
+    const pin =
+        document.getElementById("customerPIN")?.value.trim();
+
+
+    const district =
+        document.getElementById("customerDistrict")?.value.trim();
+
+
+    if (!name || !phone || !address || !pin) {
+
+        alert("Please fill all required customer details.");
+
+        return;
+
+    }
+
+
+    const items = cart.map(item => ({
+
+        productId: item.id,
+
+        quantity: item.quantity
+
+    }));
+
+
+    try {
+
+        const response = await fetch(API_URL, {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type":
+                    "text/plain;charset=utf-8"
+
+            },
+
+            body: JSON.stringify({
+
+                action: "createOrder",
+
+                customer: {
+
+                    name: name,
+
+                    phone: phone,
+
+                    address: address,
+
+                    postOffice: postOffice,
+
+                    pin: pin,
+
+                    district: district
+
+                },
+
+                items: items
+
+            })
+
+        });
+
+
+        const data = await response.json();
+
+
+        if (!data.success) {
+
+            throw new Error(
+                data.error || "Order creation failed."
+            );
+
         }
 
-        /*
-        IMPORTANT:
 
-        We do NOT create a PAID order here.
+        console.log("Order created:", data);
 
-        The backend will:
-        1. Recalculate the cart
-        2. Validate prices
-        3. Create a payment order
-        4. Return payment information
-        */
 
-        const subtotal = cart.reduce(
-            (sum, item) =>
-                sum + item.price * item.quantity,
-            0
+        alert(
+            "Order created successfully!\n\n" +
+            "Order ID: " + data.orderId +
+            "\nAmount: ₹" + data.amount +
+            "\n\nPayment is required."
         );
 
-        const delivery = 50;
-
-        const total = subtotal + delivery;
-
-        document.getElementById("payAmount").textContent = total;
-
-        document
-            .getElementById("paymentBox")
-            .classList.remove("hidden");
-
-        document.getElementById("paymentStatus").textContent =
-            "Payment order will be created securely by the server.";
 
         /*
-        Payment gateway integration
-        will be added here.
-        */
-
-    });
-
-
-// =========================
-// CONTACT LINKS
-// =========================
-
-const whatsappNumber = "919999999999";
-
-document.getElementById("whatsappLink").href =
-    `https://wa.me/${whatsappNumber}`;
-
-document.getElementById("instagramLink").href =
-    "https://instagram.com/";
+         * IMPORTANT:
+         *
+         * This does NOT mark the order as PAID.
+         *
+         * The payment gateway will be connected
+         * in the next step.
+         */
 
 
-// =========================
-// INITIALIZE
-// =========================
+    } catch (error) {
 
-renderProducts();
+        console.error("Order error:", error);
+
+        alert(
+            "Unable to create order.\n\n" +
+            error.message
+        );
+
+    }
+
+}
+
+
+// ==========================================
+// INITIAL LOAD
+// ==========================================
+
+loadProducts();
+
 renderCart();
