@@ -1,3 +1,11 @@
+
+// =========================
+// GOOGLE APPS SCRIPT BACKEND
+// =========================
+
+const API_URL = "https://script.google.com/macros/s/AKfycbw7tLFVzQN7SA1azHIK0r1MzudUMrs61c1NVau5b4erDj_YE8yVu09m8DCWr_vik91T/exec";
+
+
 const products = [
     {
         id: "WC001",
