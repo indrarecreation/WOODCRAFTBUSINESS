@@ -1,18 +1,342 @@
-const CONFIG={APPS_SCRIPT_URL:"https://script.google.com/macros/s/AKfycbwfdFi5DHSiWuiPuYIuwS3FypINaOJZsnNTng8mrxiiN_fkb70ZQ3_wsjKM1_2Rnoh55g/exec",WHATSAPP_NUMBER:"7356828624",INSTAGRAM_URL:"https://www.instagram.com/",DEFAULT_UPI:"indrajithofficialindra@okhdfcbank"};
-const ORIGINAL_IMAGES={"hero": "https://raw.githubusercontent.com/indrarecreation/tripcore/9f1f964987fa2e9fd4c888fda89bacaf6766742b/ChatGPT%20Image%20Aug%2028%2C%202026%2C%2009_45_02%20PM.png", "img1": "https://github.com/indrarecreation/tripcore/blob/main/ChatGPT%20Image%20Aug%2029,%202026,%2008_53_44%20AM.png?raw=true", "img2": "https://github.com/indrarecreation/tripcore/blob/main/ChatGPT%20Image%20Aug%2028,%202026,%2009_43_45%20PM.png?raw=true", "img3": "https://github.com/indrarecreation/tripcore/blob/main/ChatGPT%20Image%20Aug%2028,%202026,%2009_28_31%20PM.png?raw=true", "img4": "https://github.com/indrarecreation/tripcore/blob/main/ChatGPT%20Image%20Aug%2028,%202026,%2009_41_17%20PM.png?raw=true"};
-let products=[],settings={deliveryCharge:55,freeDeliveryMin:0,whatsappNumber:CONFIG.WHATSAPP_NUMBER,instagramUrl:CONFIG.INSTAGRAM_URL,upiId:CONFIG.DEFAULT_UPI},cart=[],pendingOrder=null;
-function jsonp(url){return new Promise((resolve,reject)=>{const cb="cb_"+Date.now()+"_"+Math.random().toString(36).slice(2);window[cb]=d=>{delete window[cb];s.remove();resolve(d)};const s=document.createElement("script");s.src=url+(url.includes("?")?"&":"?")+"callback="+cb;s.onerror=()=>{delete window[cb];s.remove();reject(new Error("load failed"))};document.body.appendChild(s)})}
-function openAdmin(){if(!CONFIG.APPS_SCRIPT_URL.startsWith("PASTE_"))window.open(CONFIG.APPS_SCRIPT_URL+"?page=admin","_blank");else alert("Connect the Apps Script Web App URL in app.js first.")}
-async function loadStore(){if(CONFIG.APPS_SCRIPT_URL.startsWith("PASTE_")){products=[{id:"P001",name:"Premium Handmade Teak Wood Lice Comb",price:79,oldPrice:99,stock:999,description:"Natural teak wood, fine-tooth, reusable and carefully finished.",image:ORIGINAL_IMAGES.img1}];renderProducts();return}try{const d=await jsonp(CONFIG.APPS_SCRIPT_URL+"?action=store");products=d.products||[];settings=Object.assign(settings,d.settings||{});document.getElementById("whatsappLink").href="https://wa.me/"+settings.whatsappNumber;document.getElementById("instagramLink").href=settings.instagramUrl;document.getElementById("heroPrice").textContent=products[0]?.price||79;renderProducts()}catch(e){products=[{id:"P001",name:"Premium Handmade Teak Wood Lice Comb",price:79,oldPrice:99,stock:999,description:"Natural teak wood, fine-tooth, reusable and carefully finished.",image:ORIGINAL_IMAGES.img1}];renderProducts()}}
-function renderProducts(){document.getElementById("productGrid").innerHTML=products.filter(p=>String(p.active).toUpperCase()!=="FALSE").map(p=>`<article class="product-card"><div class="product-image"><img src="${p.image||ORIGINAL_IMAGES.img1}" alt="${esc(p.name)}">${Number(p.oldPrice)>Number(p.price)?'<span class="sale-badge">OFFER</span>':''}</div><div class="product-body"><h3>${esc(p.name)}</h3><p>${esc(p.description||"Handcrafted wooden product.")}</p><div class="price-line"><div class="price"><strong>₹${money(p.price)}</strong>${Number(p.oldPrice)>Number(p.price)?`<span class="old">₹${money(p.oldPrice)}</span>`:""}</div><button class="add" onclick="addToCart('${escAttr(p.id)}')">Add to cart</button></div></div></article>`).join("")}
-function addToCart(id){const p=products.find(x=>String(x.id)===String(id));if(!p)return;let i=cart.find(x=>x.id===id);if(i)i.qty++;else cart.push({id,qty:1});updateCart();openCart()}
-function updateCart(){document.getElementById("cartCount").textContent=cart.reduce((s,x)=>s+x.qty,0);document.getElementById("cartItems").innerHTML=cart.length?cart.map(x=>{const p=products.find(y=>y.id===x.id);return `<div class="cart-item"><img src="${p.image||ORIGINAL_IMAGES.img1}"><div><b>${esc(p.name)}</b><div>₹${money(p.price)} × ${x.qty}</div><div class="qty"><button onclick="changeQty('${escAttr(x.id)}',-1)">−</button><span>${x.qty}</span><button onclick="changeQty('${escAttr(x.id)}',1)">+</button></div></div><b>₹${money(p.price*x.qty)}</b></div>`}).join(""):"<p class='muted'>Your cart is empty.</p>";const c=calculate();document.getElementById("cartSubtotal").textContent=money(c.subtotal);document.getElementById("cartDiscount").textContent=money(c.discount);document.getElementById("cartDelivery").textContent=money(c.delivery);document.getElementById("cartTotal").textContent=money(c.total)}
-function changeQty(id,d){const x=cart.find(y=>y.id===id);if(!x)return;x.qty+=d;if(x.qty<=0)cart=cart.filter(y=>y.id!==id);updateCart()}
-function calculate(coupon=""){let subtotal=cart.reduce((s,x)=>{const p=products.find(y=>y.id===x.id);return s+(Number(p?.price)||0)*x.qty},0),discount=0,code=coupon.trim().toUpperCase();if(code&&settings.coupons&&settings.coupons[code]){const c=settings.coupons[code];discount=c.type==="percent"?Math.round(subtotal*Number(c.value)/100):Math.min(subtotal,Number(c.value)||0)}let delivery=subtotal-discount>=Number(settings.freeDeliveryMin||0)?0:Number(settings.deliveryCharge||55);return{subtotal,discount,delivery,total:Math.max(0,subtotal-discount+delivery)}}
-function openCart(){document.getElementById("cartDrawer").classList.add("open")}function closeCart(){document.getElementById("cartDrawer").classList.remove("open")}function showCheckout(){if(!cart.length)return alert("Add a product first.");closeCart();document.getElementById("checkoutModal").classList.add("open")}function closeCheckout(){document.getElementById("checkoutModal").classList.remove("open")}
-document.getElementById("coupon").addEventListener("input",()=>{document.getElementById("payAmount").textContent=money(calculate(document.getElementById("coupon").value).total)});
-document.getElementById("checkoutForm").addEventListener("submit",e=>{e.preventDefault();const pin=val("pinCode");if(!/^\d{6}$/.test(pin))return alert("Enter a valid 6-digit PIN.");const c=calculate(val("coupon"));pendingOrder={orderId:"WC-"+Date.now().toString().slice(-8),items:cart.map(x=>{const p=products.find(y=>y.id===x.id);return{productId:p.id,product:p.name,quantity:x.qty,unitPrice:p.price}}),customerName:val("customerName"),phone:val("phone"),shippingAddress:val("shippingAddress"),postOffice:val("postOffice"),pinCode:pin,district:val("district"),subtotal:c.subtotal,discount:c.discount,deliveryCharge:c.delivery,total:c.total,coupon:val("coupon"),paymentMethod:"UPI",paymentStatus:"CUSTOMER CLAIMS PAYMENT COMPLETED",orderStatus:"NEW"};document.getElementById("payAmount").textContent=money(c.total);document.getElementById("upiId").textContent=settings.upiId||CONFIG.DEFAULT_UPI;const u="upi://pay?pa="+encodeURIComponent(settings.upiId||CONFIG.DEFAULT_UPI)+"&pn="+encodeURIComponent(settings.sellerName||"WoodCraft")+"&am="+c.total+"&cu=INR&tn="+encodeURIComponent(pendingOrder.orderId);document.getElementById("qrImage").src="https://api.qrserver.com/v1/create-qr-code/?size=500x500&data="+encodeURIComponent(u);document.getElementById("paymentBox").classList.remove("hidden")});
-function placeOrder(){if(!pendingOrder)return;const b=document.querySelector(".payment-box .btn");b.disabled=true;b.textContent="Saving order…";saveOrder(pendingOrder,()=>{sendWhatsApp(pendingOrder);alert("Order submitted. Order ID: "+pendingOrder.orderId);cart=[];updateCart();closeCheckout();document.getElementById("paymentBox").classList.add("hidden");b.disabled=false;b.textContent="✓ I HAVE PAID — PLACE ORDER"})}
-function saveOrder(o,done){if(CONFIG.APPS_SCRIPT_URL.startsWith("PASTE_"))return done(false);const f=document.createElement("form");f.method="POST";f.action=CONFIG.APPS_SCRIPT_URL;f.target="saveFrame";Object.entries({action:"createOrder",orderId:o.orderId,itemsJson:JSON.stringify(o.items),customerName:o.customerName,phone:o.phone,shippingAddress:o.shippingAddress,postOffice:o.postOffice,pinCode:o.pinCode,district:o.district,subtotal:o.subtotal,discount:o.discount,deliveryCharge:o.deliveryCharge,total:o.total,coupon:o.coupon,paymentMethod:o.paymentMethod,paymentStatus:o.paymentStatus,orderStatus:o.orderStatus}).forEach(([k,v])=>{const i=document.createElement("input");i.type="hidden";i.name=k;i.value=v;f.appendChild(i)});document.body.appendChild(f);document.getElementById("saveFrame").onload=()=>{f.remove();done(true)};f.submit();setTimeout(()=>{if(document.body.contains(f)){f.remove();done(true)}},4000)}
-function sendWhatsApp(o){const lines=o.items.map(i=>`• ${i.product} × ${i.quantity} = ₹${money(i.unitPrice*i.quantity)}`).join("\n");const msg=`🛒 *NEW WOODCRAFT ORDER*\n\nOrder ID: ${o.orderId}\n\n📦 *Items*\n${lines}\n\nSubtotal: ₹${o.subtotal}\nDiscount: ₹${o.discount}\nDelivery: ₹${o.deliveryCharge}\n*TOTAL: ₹${o.total}*\n\n👤 ${o.customerName}\n📱 ${o.phone}\n📍 ${o.shippingAddress}, ${o.postOffice}, ${o.district} - ${o.pinCode}\n\n💳 UPI — CUSTOMER CLAIMS PAYMENT COMPLETED\n⚠️ Verify payment before dispatch.`;window.open("https://wa.me/"+(settings.whatsappNumber||CONFIG.WHATSAPP_NUMBER)+"?text="+encodeURIComponent(msg),"_blank")}
-function val(id){return document.getElementById(id).value.trim()}function money(n){return Number(n||0).toLocaleString("en-IN")}function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}function escAttr(s){return esc(s).replace(/`/g,"&#096;")}loadStore();
+const products = [
+    {
+        id: "WC001",
+        name: "Handcrafted Lice Comb",
+        description: "Fine-tooth natural wooden comb.",
+        price: 79,
+        image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+        id: "WC002",
+        name: "Premium Wooden Comb",
+        description: "Smooth-finished wooden comb.",
+        price: 129,
+        image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+        id: "WC003",
+        name: "Natural Hair Comb",
+        description: "Lightweight everyday wooden comb.",
+        price: 99,
+        image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80"
+    }
+];
+
+let cart = [];
+
+
+// =========================
+// PRODUCT DISPLAY
+// =========================
+
+function renderProducts() {
+
+    const grid = document.getElementById("productGrid");
+
+    if (!grid) return;
+
+    grid.innerHTML = products.map(product => `
+
+        <article class="product-card">
+
+            <div class="product-image">
+                <img
+                    src="${product.image}"
+                    alt="${product.name}">
+            </div>
+
+            <div class="product-info">
+
+                <h3>${product.name}</h3>
+
+                <p>
+                    ${product.description}
+                </p>
+
+                <div class="product-price">
+                    ₹${product.price}
+                </div>
+
+                <button
+                    class="add-btn"
+                    onclick="addToCart('${product.id}')">
+
+                    Add to Cart
+
+                </button>
+
+            </div>
+
+        </article>
+
+    `).join("");
+}
+
+
+// =========================
+// CART
+// =========================
+
+function addToCart(productId) {
+
+    const product = products.find(p => p.id === productId);
+
+    if (!product) return;
+
+    const existing = cart.find(item => item.id === productId);
+
+    if (existing) {
+        existing.quantity++;
+    } else {
+        cart.push({
+            ...product,
+            quantity: 1
+        });
+    }
+
+    renderCart();
+
+    openCart();
+}
+
+
+function removeFromCart(productId) {
+
+    cart = cart.filter(item => item.id !== productId);
+
+    renderCart();
+}
+
+
+function changeQuantity(productId, amount) {
+
+    const item = cart.find(item => item.id === productId);
+
+    if (!item) return;
+
+    item.quantity += amount;
+
+    if (item.quantity <= 0) {
+        removeFromCart(productId);
+        return;
+    }
+
+    renderCart();
+}
+
+
+function renderCart() {
+
+    const container = document.getElementById("cartItems");
+
+    const count = cart.reduce(
+        (total, item) => total + item.quantity,
+        0
+    );
+
+    document.getElementById("cartCount").textContent = count;
+
+    if (!cart.length) {
+
+        container.innerHTML = `
+            <p class="muted">
+                Your cart is empty.
+            </p>
+        `;
+
+        updateTotals();
+        return;
+    }
+
+    container.innerHTML = cart.map(item => `
+
+        <div class="cart-item">
+
+            <img src="${item.image}" alt="">
+
+            <div class="cart-item-info">
+
+                <h4>${item.name}</h4>
+
+                <small>
+                    ₹${item.price} × ${item.quantity}
+                </small>
+
+                <div style="margin-top:8px">
+
+                    <button onclick="changeQuantity('${item.id}', -1)">
+                        −
+                    </button>
+
+                    <span style="margin:0 10px">
+                        ${item.quantity}
+                    </span>
+
+                    <button onclick="changeQuantity('${item.id}', 1)">
+                        +
+                    </button>
+
+                    <button
+                        onclick="removeFromCart('${item.id}')"
+                        style="margin-left:15px">
+
+                        Remove
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `).join("");
+
+    updateTotals();
+}
+
+
+function updateTotals() {
+
+    const subtotal = cart.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+    );
+
+    const delivery = subtotal > 0 ? 50 : 0;
+
+    const discount = 0;
+
+    const total = subtotal - discount + delivery;
+
+    document.getElementById("cartSubtotal").textContent = subtotal;
+    document.getElementById("cartDiscount").textContent = discount;
+    document.getElementById("cartDelivery").textContent = delivery;
+    document.getElementById("cartTotal").textContent = total;
+}
+
+
+// =========================
+// CART DRAWER
+// =========================
+
+function openCart() {
+
+    document
+        .getElementById("cartDrawer")
+        .classList.add("active");
+
+}
+
+
+function closeCart() {
+
+    document
+        .getElementById("cartDrawer")
+        .classList.remove("active");
+
+}
+
+
+// =========================
+// CHECKOUT
+// =========================
+
+function showCheckout() {
+
+    if (!cart.length) {
+
+        alert("Your cart is empty.");
+
+        return;
+    }
+
+    closeCart();
+
+    document
+        .getElementById("checkoutModal")
+        .classList.add("active");
+}
+
+
+function closeCheckout() {
+
+    document
+        .getElementById("checkoutModal")
+        .classList.remove("active");
+}
+
+
+// =========================
+// CHECKOUT FORM
+// =========================
+
+document
+    .getElementById("checkoutForm")
+    .addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        if (!cart.length) {
+            alert("Your cart is empty.");
+            return;
+        }
+
+        /*
+        IMPORTANT:
+
+        We do NOT create a PAID order here.
+
+        The backend will:
+        1. Recalculate the cart
+        2. Validate prices
+        3. Create a payment order
+        4. Return payment information
+        */
+
+        const subtotal = cart.reduce(
+            (sum, item) =>
+                sum + item.price * item.quantity,
+            0
+        );
+
+        const delivery = 50;
+
+        const total = subtotal + delivery;
+
+        document.getElementById("payAmount").textContent = total;
+
+        document
+            .getElementById("paymentBox")
+            .classList.remove("hidden");
+
+        document.getElementById("paymentStatus").textContent =
+            "Payment order will be created securely by the server.";
+
+        /*
+        Payment gateway integration
+        will be added here.
+        */
+
+    });
+
+
+// =========================
+// CONTACT LINKS
+// =========================
+
+const whatsappNumber = "919999999999";
+
+document.getElementById("whatsappLink").href =
+    `https://wa.me/${whatsappNumber}`;
+
+document.getElementById("instagramLink").href =
+    "https://instagram.com/";
+
+
+// =========================
+// INITIALIZE
+// =========================
+
+renderProducts();
+renderCart();
