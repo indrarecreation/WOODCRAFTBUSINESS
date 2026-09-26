@@ -73,13 +73,18 @@ async function loadProducts() {
       "productsGrid"
     );
 
-
   try {
 
     const response =
       await fetch(
         API_URL +
-        "?action=getProducts"
+        "?action=getProducts",
+        {
+          method: "GET",
+          redirect: "follow",
+          credentials: "omit",
+          cache: "no-store"
+        }
       );
 
 
@@ -94,7 +99,7 @@ async function loadProducts() {
 
 
     const data =
-      await response.json();
+      await readJsonResponse(response);
 
 
     if (!data.success) {
@@ -595,6 +600,109 @@ function updateCheckoutTotal() {
 
 
 /* ============================================================
+   SAFE JSON RESPONSE READER
+============================================================ */
+
+async function readJsonResponse(response) {
+
+  /*
+   * Apps Script ContentService responses can be redirected.
+   * The fetch request explicitly follows redirects.
+   *
+   * We read the response as TEXT first instead of directly
+   * calling response.json().
+   *
+   * This gives us a much clearer error if Apps Script returns
+   * HTML, an empty response, or another unexpected response.
+   */
+
+  const text =
+    await response.text();
+
+
+  if (!text) {
+
+    throw new Error(
+      "The server returned an empty response."
+    );
+
+  }
+
+
+  try {
+
+    return JSON.parse(text);
+
+  } catch (parseError) {
+
+    console.error(
+      "INVALID SERVER RESPONSE:",
+      text
+    );
+
+    throw new Error(
+      "The server returned an invalid response. " +
+      "Please try again."
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   POST JSON TO BACKEND
+============================================================ */
+
+async function postToBackend(payload) {
+
+  const response =
+    await fetch(
+      API_URL,
+      {
+
+        method: "POST",
+
+        mode: "cors",
+
+        redirect: "follow",
+
+        credentials: "omit",
+
+        cache: "no-store",
+
+        headers: {
+          "Content-Type":
+            "text/plain;charset=utf-8",
+          "Accept":
+            "application/json"
+        },
+
+        body:
+          JSON.stringify(payload)
+
+      }
+    );
+
+
+  if (!response.ok) {
+
+    throw new Error(
+      "Backend returned HTTP " +
+      response.status
+    );
+
+  }
+
+
+  return await readJsonResponse(
+    response
+  );
+
+}
+
+
+/* ============================================================
    SUBMIT ORDER
 ============================================================ */
 
@@ -709,38 +817,19 @@ async function submitOrder(event) {
        CREATE WOODCRAFT ORDER
     -------------------------------------------------------- */
 
-    const response =
-      await fetch(
-        API_URL,
-        {
-
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "text/plain;charset=utf-8"
-          },
-
-          body:
-            JSON.stringify({
-
-              action:
-                "createOrder",
-
-              customer:
-                customer,
-
-              items:
-                items
-
-            })
-
-        }
-      );
-
-
     const data =
-      await response.json();
+      await postToBackend({
+
+        action:
+          "createOrder",
+
+        customer:
+          customer,
+
+        items:
+          items
+
+      });
 
 
     if (!data.success) {
@@ -766,35 +855,16 @@ async function submitOrder(event) {
       "Preparing Payment...";
 
 
-    const razorpayResponse =
-      await fetch(
-        API_URL,
-        {
-
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "text/plain;charset=utf-8"
-          },
-
-          body:
-            JSON.stringify({
-
-              action:
-                "createRazorpayOrder",
-
-              OrderID:
-                orderId
-
-            })
-
-        }
-      );
-
-
     const razorpayData =
-      await razorpayResponse.json();
+      await postToBackend({
+
+        action:
+          "createRazorpayOrder",
+
+        OrderID:
+          orderId
+
+      });
 
 
     if (!razorpayData.success) {
@@ -847,7 +917,8 @@ async function submitOrder(event) {
         "WOODCRAFT",
 
       description:
-        "WOODCRAFT Order " + orderId,
+        "WOODCRAFT Order " +
+        orderId,
 
       order_id:
         razorpay.orderId,
@@ -976,50 +1047,49 @@ async function verifyPayment(
   try {
 
     /* --------------------------------------------------------
+       VALIDATE RAZORPAY RESPONSE
+    -------------------------------------------------------- */
+
+    if (
+      !paymentResponse ||
+      !paymentResponse.razorpay_payment_id ||
+      !paymentResponse.razorpay_order_id ||
+      !paymentResponse.razorpay_signature
+    ) {
+
+      throw new Error(
+        "Razorpay returned an incomplete payment response."
+      );
+
+    }
+
+
+    /* --------------------------------------------------------
        SEND RAZORPAY RESPONSE TO SERVER
     -------------------------------------------------------- */
 
-    const response =
-      await fetch(
-        API_URL,
-        {
-
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "text/plain;charset=utf-8"
-          },
-
-          body:
-            JSON.stringify({
-
-              action:
-                "verifyRazorpayPayment",
-
-              OrderID:
-                orderId,
-
-              razorpay_payment_id:
-                paymentResponse
-                  .razorpay_payment_id,
-
-              razorpay_order_id:
-                paymentResponse
-                  .razorpay_order_id,
-
-              razorpay_signature:
-                paymentResponse
-                  .razorpay_signature
-
-            })
-
-        }
-      );
-
-
     const data =
-      await response.json();
+      await postToBackend({
+
+        action:
+          "verifyRazorpayPayment",
+
+        OrderID:
+          orderId,
+
+        razorpay_payment_id:
+          paymentResponse
+            .razorpay_payment_id,
+
+        razorpay_order_id:
+          paymentResponse
+            .razorpay_order_id,
+
+        razorpay_signature:
+          paymentResponse
+            .razorpay_signature
+
+      });
 
 
     /* --------------------------------------------------------
