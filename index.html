@@ -336,12 +336,25 @@
 
 
           <label>
+            Email Address
+          </label>
+
+          <input
+            type="email"
+            id="customerEmail"
+            autocomplete="email"
+            required
+          >
+
+
+          <label>
             Phone Number
           </label>
 
           <input
             type="tel"
             id="customerPhone"
+            autocomplete="tel"
             required
           >
 
@@ -439,11 +452,12 @@
     <div class="checkout-modal success-modal">
 
       <h2>
-        Order Created
+        Order Confirmed
       </h2>
 
       <p>
-        Your order has been created successfully.
+        Your payment has been verified
+        and your order is confirmed.
       </p>
 
       <p>
@@ -455,8 +469,8 @@
       </strong>
 
       <p class="success-note">
-        Payment will be connected in the
-        next step.
+        A confirmation email will be sent
+        to your email address.
       </p>
 
       <button
