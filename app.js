@@ -739,21 +739,29 @@ async function submitOrder(event) {
 
   const customer = {
 
-    name:
-      document
-        .getElementById(
-          "customerName"
-        )
-        .value
-        .trim(),
+  name:
+    document
+      .getElementById(
+        "customerName"
+      )
+      .value
+      .trim(),
 
-    phone:
-      document
-        .getElementById(
-          "customerPhone"
-        )
-        .value
-        .trim(),
+  email:
+    document
+      .getElementById(
+        "customerEmail"
+      )
+      .value
+      .trim(),
+
+  phone:
+    document
+      .getElementById(
+        "customerPhone"
+      )
+      .value
+      .trim(),
 
     address:
       document
