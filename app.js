@@ -343,120 +343,72 @@ function removeFromCart(productId) {
    RENDER CART
 ============================================================ */
 
-function renderCart() {
+/* ============================================================
+   INCREASE CART QUANTITY
+============================================================ */
 
-  const cartItems =
-    document.getElementById(
-      "cartItems"
+function increaseCartQuantity(productId) {
+
+  const item =
+    cart.find(
+      item =>
+        String(item.ProductID) ===
+        String(productId)
     );
 
 
-  const cartCount =
-    document.getElementById(
-      "cartCount"
-    );
-
-
-  const cartTotal =
-    document.getElementById(
-      "cartTotal"
-    );
-
-
-  const checkoutButton =
-    document.getElementById(
-      "checkoutButton"
-    );
-
-
-  const totalQuantity =
-    cart.reduce(
-      (sum, item) =>
-        sum + item.Quantity,
-      0
-    );
-
-
-  const total =
-    cart.reduce(
-      (sum, item) =>
-        sum +
-        (
-          item.Price *
-          item.Quantity
-        ),
-      0
-    );
-
-
-  cartCount.textContent =
-    totalQuantity;
-
-
-  cartTotal.textContent =
-    `₹${total.toFixed(2)}`;
-
-
-  checkoutButton.disabled =
-    cart.length === 0;
-
-
-  if (!cart.length) {
-
-    cartItems.innerHTML =
-      `<p>Your cart is empty.</p>`;
-
+  if (!item) {
     return;
+  }
+
+
+  item.Quantity += 1;
+
+
+  renderCart();
+
+}
+
+
+/* ============================================================
+   DECREASE CART QUANTITY
+============================================================ */
+
+function decreaseCartQuantity(productId) {
+
+  const item =
+    cart.find(
+      item =>
+        String(item.ProductID) ===
+        String(productId)
+    );
+
+
+  if (!item) {
+    return;
+  }
+
+
+  item.Quantity -= 1;
+
+
+  /* --------------------------------------------------------
+     REMOVE ITEM WHEN QUANTITY REACHES ZERO
+  -------------------------------------------------------- */
+
+  if (item.Quantity <= 0) {
+
+    cart =
+      cart.filter(
+        cartItem =>
+          String(cartItem.ProductID) !==
+          String(productId)
+      );
 
   }
 
 
-  cartItems.innerHTML =
-    cart.map(item => {
-
-      const itemTotal =
-        item.Price *
-        item.Quantity;
-
-
-      return `
-
-        <div class="cart-item">
-
-          <div>
-
-            <strong>
-              ${escapeHTML(
-                item.ProductName
-              )}
-            </strong>
-
-            <div>
-              ₹${item.Price.toFixed(2)}
-              × ${item.Quantity}
-            </div>
-
-            <strong>
-              ₹${itemTotal.toFixed(2)}
-            </strong>
-
-          </div>
-
-          <button
-            onclick="removeFromCart(
-              '${escapeHTML(
-                item.ProductID
-              )}'
-            )"
-          >
-            Remove
-          </button>
-
-        </div>
-
-      `;
-
-    }).join("");
+  renderCart();
 
 }
 
