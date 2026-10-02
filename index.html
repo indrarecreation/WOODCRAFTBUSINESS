@@ -44,16 +44,25 @@
       </nav>
 
 
-      <button
-        class="cart-button"
-        onclick="openCart()"
-      >
+      <div class="header-actions">
 
-        Cart
+  <button
+    class="account-button"
+    id="accountButton"
+    onclick="openAccount()"
+  >
+    My Account
+  </button>
 
-        <span id="cartCount">0</span>
+  <button
+    class="cart-button"
+    onclick="openCart()"
+  >
+    Cart
+    <span id="cartCount">0</span>
+  </button>
 
-      </button>
+</div>  
 
     </div>
 
@@ -512,7 +521,145 @@
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="app.js"></script>
+<!-- =====================================================
+     CUSTOMER ACCOUNT MODAL
+===================================================== -->
 
+<div
+  class="modal-overlay"
+  id="accountModal"
+  style="display:none;"
+>
+
+  <div class="modal account-modal">
+
+    <button
+      class="modal-close"
+      onclick="closeAccount()"
+      aria-label="Close"
+    >
+      ×
+    </button>
+
+    <!-- LOGIN -->
+
+    <div id="accountLoginView">
+
+      <h2>My Account</h2>
+
+      <p class="account-subtitle">
+        Login with your email to view your orders.
+      </p>
+
+      <div class="form-group">
+
+        <label for="accountEmail">
+          Email
+        </label>
+
+        <input
+          type="email"
+          id="accountEmail"
+          placeholder="Enter your email"
+          autocomplete="email"
+        >
+
+      </div>
+
+      <button
+        class="primary-button"
+        id="sendOtpButton"
+        onclick="sendCustomerOTP()"
+      >
+        Send OTP
+      </button>
+
+      <p
+        class="account-message"
+        id="accountMessage"
+      ></p>
+
+    </div>
+
+    <!-- OTP -->
+
+    <div
+      id="accountOtpView"
+      style="display:none;"
+    >
+
+      <h2>Enter OTP</h2>
+
+      <p class="account-subtitle">
+        Enter the 6-digit OTP sent to your email.
+      </p>
+
+      <div class="form-group">
+
+        <label for="accountOtp">
+          OTP
+        </label>
+
+        <input
+          type="text"
+          id="accountOtp"
+          inputmode="numeric"
+          maxlength="6"
+          placeholder="6-digit OTP"
+          autocomplete="one-time-code"
+        >
+
+      </div>
+
+      <button
+        class="primary-button"
+        id="verifyOtpButton"
+        onclick="verifyCustomerLogin()"
+      >
+        Verify OTP
+      </button>
+
+      <button
+        class="secondary-button"
+        onclick="backToAccountEmail()"
+      >
+        Back
+      </button>
+
+      <p
+        class="account-message"
+        id="otpMessage"
+      ></p>
+
+    </div>
+
+    <!-- ACCOUNT -->
+
+    <div
+      id="accountProfileView"
+      style="display:none;"
+    >
+
+      <h2>My Account</h2>
+
+      <div id="accountProfile"></div>
+
+      <h3>My Orders</h3>
+
+      <div id="accountOrders"></div>
+
+      <button
+        class="secondary-button"
+        onclick="logoutCustomer()"
+      >
+        Logout
+      </button>
+
+    </div>
+
+  </div>
+
+</div>  
 </body>
 
 </html>
