@@ -818,3 +818,54 @@ button {
   }
 
 }
+/* =========================================================
+   CUSTOMER ACCOUNT MODAL OVERLAY
+========================================================= */
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 4000;
+
+  background: rgba(0, 0, 0, 0.65);
+
+  padding: 30px;
+
+  align-items: center;
+  justify-content: center;
+
+  overflow-y: auto;
+}
+
+
+.modal {
+  background: white;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+
+  border: none;
+  background: transparent;
+
+  font-size: 28px;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+
+@media (max-width: 800px) {
+
+  .modal-overlay {
+    padding: 10px;
+  }
+
+}
