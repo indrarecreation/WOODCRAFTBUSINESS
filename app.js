@@ -342,7 +342,139 @@ function removeFromCart(productId) {
 /* ============================================================
    RENDER CART
 ============================================================ */
+function renderCart() {
 
+  const cartItems =
+    document.getElementById(
+      "cartItems"
+    );
+
+  const cartCount =
+    document.getElementById(
+      "cartCount"
+    );
+
+  const cartTotal =
+    document.getElementById(
+      "cartTotal"
+    );
+
+  const checkoutButton =
+    document.getElementById(
+      "checkoutButton"
+    );
+
+
+  const totalQuantity =
+    cart.reduce(
+      (sum, item) =>
+        sum + item.Quantity,
+      0
+    );
+
+
+  const total =
+    cart.reduce(
+      (sum, item) =>
+        sum +
+        (
+          item.Price *
+          item.Quantity
+        ),
+      0
+    );
+
+
+  cartCount.textContent =
+    totalQuantity;
+
+
+  cartTotal.textContent =
+    `₹${total.toFixed(2)}`;
+
+
+  checkoutButton.disabled =
+    cart.length === 0;
+
+
+  if (!cart.length) {
+
+    cartItems.innerHTML =
+      `<p>Your cart is empty.</p>`;
+
+    return;
+
+  }
+
+
+  cartItems.innerHTML =
+    cart.map(item => {
+
+      const itemTotal =
+        item.Price *
+        item.Quantity;
+
+
+      return `
+
+        <div class="cart-item">
+
+          <div>
+
+            <strong>
+              ${escapeHTML(
+                item.ProductName
+              )}
+            </strong>
+
+            <div>
+              ₹${item.Price.toFixed(2)}
+            </div>
+
+            <div class="cart-quantity-controls">
+
+              <button
+                type="button"
+                onclick="decreaseCartQuantity('${escapeHTML(item.ProductID)}')"
+                aria-label="Decrease quantity"
+              >
+                −
+              </button>
+
+              <span>
+                ${item.Quantity}
+              </span>
+
+              <button
+                type="button"
+                onclick="increaseCartQuantity('${escapeHTML(item.ProductID)}')"
+                aria-label="Increase quantity"
+              >
+                +
+              </button>
+
+            </div>
+
+            <strong>
+              ₹${itemTotal.toFixed(2)}
+            </strong>
+
+          </div>
+
+          <button
+            type="button"
+            onclick="removeFromCart('${escapeHTML(item.ProductID)}')"
+          >
+            Remove
+          </button>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
 /* ============================================================
    INCREASE CART QUANTITY
 ============================================================ */
