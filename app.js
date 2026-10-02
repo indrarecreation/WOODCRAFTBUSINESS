@@ -1990,6 +1990,115 @@ function renderCustomerOrders(
             })
             .join("");
 
+
+        const createdAt =
+          order.CreatedAt
+            ? new Date(
+                order.CreatedAt
+              ).toLocaleDateString(
+                "en-IN"
+              )
+            : "-";
+
+
+        /* ---------------------------------------------------
+           CUSTOMER-FRIENDLY ORDER STATUS
+        --------------------------------------------------- */
+
+        const statusMap = {
+
+          CONFIRMED:
+            "Order Received",
+
+          PACKED:
+            "Packed",
+
+          OUT_FOR_DELIVERY:
+            "Out for Delivery",
+
+          DELIVERED:
+            "Delivered"
+
+        };
+
+
+        const rawOrderStatus =
+          String(
+            order.OrderStatus || ""
+          )
+            .trim()
+            .toUpperCase();
+
+
+        const customerOrderStatus =
+          statusMap[
+            rawOrderStatus
+          ] ||
+          rawOrderStatus ||
+          "-";
+
+
+        return `
+          <div class="account-order">
+
+            <div class="account-order-header">
+
+              <div>
+
+                <div class="account-order-id">
+                  ${escapeHTML(
+                    String(
+                      order.OrderID || ""
+                    )
+                  )}
+                </div>
+
+                <div class="account-order-date">
+                  ${escapeHTML(
+                    createdAt
+                  )}
+                </div>
+
+              </div>
+
+            </div>
+
+
+            ${items}
+
+
+            <div class="account-order-total">
+              Total: ₹${Number(
+                order.Total || 0
+              ).toFixed(2)}
+            </div>
+
+
+            <div class="account-order-status">
+              Payment:
+              ${escapeHTML(
+                String(
+                  order.PaymentStatus || "-"
+                )
+              )}
+            </div>
+
+
+            <div class="account-order-status">
+              Order:
+              ${escapeHTML(
+                customerOrderStatus
+              )}
+            </div>
+
+
+          </div>
+        `;
+
+      })
+      .join("");
+}
+
         const createdAt =
           order.CreatedAt
             ? new Date(
