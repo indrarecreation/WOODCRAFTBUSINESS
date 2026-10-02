@@ -869,3 +869,85 @@ button {
   }
 
 }
+/* =========================================================
+   ORDER TRACKING
+========================================================= */
+
+.account-order-tracking {
+  margin-top: 18px;
+  padding: 16px 8px 8px;
+}
+
+.order-tracking-line {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  position: relative;
+}
+
+.order-tracking-line::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 8%;
+  right: 8%;
+  height: 2px;
+  background: #ddd3c5;
+  z-index: 0;
+}
+
+.order-tracking-step {
+  position: relative;
+  z-index: 1;
+  width: 25%;
+  text-align: center;
+  font-size: 11px;
+  color: #8c8175;
+}
+
+.order-tracking-dot {
+  width: 16px;
+  height: 16px;
+  margin: 0 auto 7px;
+  border-radius: 50%;
+  background: #ddd3c5;
+  border: 3px solid white;
+  box-shadow: 0 0 0 1px #ddd3c5;
+}
+
+.order-tracking-step.active {
+  color: #2d241c;
+  font-weight: 700;
+}
+
+.order-tracking-step.active .order-tracking-dot {
+  background: #2d241c;
+  box-shadow: 0 0 0 1px #2d241c;
+}
+
+.order-tracking-step.completed .order-tracking-dot {
+  background: #2d241c;
+  box-shadow: 0 0 0 1px #2d241c;
+}
+
+.order-tracking-step.completed {
+  color: #2d241c;
+}
+
+
+/* ---------------------------------------------------------
+   MOBILE ORDER TRACKING
+--------------------------------------------------------- */
+
+@media (max-width: 500px) {
+
+  .account-order-tracking {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .order-tracking-step {
+    font-size: 9px;
+  }
+
+}
