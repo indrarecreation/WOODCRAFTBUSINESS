@@ -1335,7 +1335,9 @@ let customerProfile = null;
 ========================================================= */
 
 async function openAccount() {
-
+   
+  startCustomerOrderRefresh();
+   
   const modal =
     document.getElementById(
       "accountModal"
@@ -1383,6 +1385,9 @@ async function openAccount() {
 
 function closeAccount() {
 
+   clearInterval(customerOrderRefreshTimer);
+     customerOrderRefreshTimer = null;
+   
   const modal =
     document.getElementById(
       "accountModal"
@@ -2252,4 +2257,41 @@ function logoutCustomer() {
   if (otpMessage) {
     otpMessage.textContent = "";
   }
+}
+let customerOrderRefreshTimer = null;
+
+function startCustomerOrderRefresh() {
+
+  if (customerOrderRefreshTimer) {
+    return;
+  }
+
+  customerOrderRefreshTimer = setInterval(
+    async function() {
+
+      const modal =
+        document.getElementById(
+          "accountModal"
+        );
+
+      if (
+        !modal ||
+        modal.style.display !== "flex" ||
+        !customerSessionToken
+      ) {
+        return;
+      }
+
+      try {
+        await loadCustomerAccount();
+      } catch (error) {
+        console.log(
+          "Automatic order refresh failed.",
+          error
+        );
+      }
+
+    },
+    30000
+  );
 }
