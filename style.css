@@ -616,3 +616,205 @@ button {
   }
 
 }
+/* =========================================================
+   CUSTOMER ACCOUNT
+========================================================= */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.account-button {
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.account-button:hover {
+  opacity: 0.8;
+}
+
+
+/* ---------------------------------------------------------
+   ACCOUNT MODAL
+--------------------------------------------------------- */
+
+.account-modal {
+  position: relative;
+  width: min(92vw, 520px);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+
+/* ---------------------------------------------------------
+   ACCOUNT TEXT
+--------------------------------------------------------- */
+
+.account-subtitle {
+  margin-top: -8px;
+  margin-bottom: 24px;
+  opacity: 0.75;
+}
+
+.account-message {
+  min-height: 20px;
+  margin-top: 14px;
+  font-size: 14px;
+}
+
+
+/* ---------------------------------------------------------
+   ACCOUNT FORM
+--------------------------------------------------------- */
+
+.account-modal .form-group {
+  margin-bottom: 18px;
+}
+
+.account-modal input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+/* ---------------------------------------------------------
+   ACCOUNT BUTTONS
+--------------------------------------------------------- */
+
+.account-modal .primary-button,
+.account-modal .secondary-button {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.account-modal .secondary-button {
+  margin-bottom: 4px;
+}
+
+
+/* ---------------------------------------------------------
+   CUSTOMER PROFILE
+--------------------------------------------------------- */
+
+#accountProfile {
+  margin: 20px 0 28px;
+}
+
+.account-profile-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.account-profile-label {
+  font-weight: 600;
+}
+
+.account-profile-value {
+  text-align: right;
+  word-break: break-word;
+}
+
+
+/* ---------------------------------------------------------
+   CUSTOMER ORDERS
+--------------------------------------------------------- */
+
+#accountOrders {
+  margin-top: 16px;
+}
+
+.account-order {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.account-order-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.account-order-id {
+  font-weight: 700;
+}
+
+.account-order-date {
+  opacity: 0.7;
+  font-size: 13px;
+}
+
+.account-order-total {
+  font-weight: 700;
+  margin-top: 12px;
+}
+
+.account-order-status {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.account-order-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.account-order-item:last-child {
+  border-bottom: none;
+}
+
+
+/* ---------------------------------------------------------
+   MOBILE
+--------------------------------------------------------- */
+
+@media (max-width: 800px) {
+
+  .header-actions {
+    gap: 6px;
+  }
+
+  .account-button,
+  .cart-button {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .account-modal {
+    width: 92vw;
+    max-height: 88vh;
+  }
+
+  .account-profile-row {
+    display: block;
+  }
+
+  .account-profile-value {
+    text-align: left;
+    margin-top: 4px;
+  }
+
+  .account-order-header {
+    display: block;
+  }
+
+  .account-order-date {
+    margin-top: 4px;
+  }
+
+}
