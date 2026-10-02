@@ -1999,7 +1999,14 @@ function renderCustomerOrders(
                 "en-IN"
               )
             : "-";
-
+         const updatedAt =
+           order.UpdatedAt
+             ? new Date(
+                 order.UpdatedAt
+               ).toLocaleString(
+                 "en-IN"
+               )
+             : "-";
 
         /* ---------------------------------------------------
            CUSTOMER-FRIENDLY ORDER STATUS
