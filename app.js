@@ -2085,14 +2085,76 @@ function renderCustomerOrders(
 
 
             <div class="account-order-status">
-              Order:
-              ${escapeHTML(
-                customerOrderStatus
-              )}
-            </div>
+  Order:
+  ${escapeHTML(
+    customerOrderStatus
+  )}
+</div>
+
+<div class="account-order-tracking">
+
+  <div class="order-tracking-line">
+
+    <div class="order-tracking-step ${
+      rawOrderStatus === "CONFIRMED"
+        ? "active"
+        : ["PACKED", "OUT_FOR_DELIVERY", "DELIVERED"].includes(rawOrderStatus)
+          ? "completed"
+          : ""
+    }">
+
+      <div class="order-tracking-dot"></div>
+
+      <div>Order Received</div>
+
+    </div>
 
 
-          </div>
+    <div class="order-tracking-step ${
+      ["PACKED", "OUT_FOR_DELIVERY", "DELIVERED"].includes(rawOrderStatus)
+        ? rawOrderStatus === "PACKED"
+          ? "active"
+          : "completed"
+        : ""
+    }">
+
+      <div class="order-tracking-dot"></div>
+
+      <div>Packed</div>
+
+    </div>
+
+
+    <div class="order-tracking-step ${
+      ["OUT_FOR_DELIVERY", "DELIVERED"].includes(rawOrderStatus)
+        ? rawOrderStatus === "OUT_FOR_DELIVERY"
+          ? "active"
+          : "completed"
+        : ""
+    }">
+
+      <div class="order-tracking-dot"></div>
+
+      <div>Out for Delivery</div>
+
+    </div>
+
+
+    <div class="order-tracking-step ${
+      rawOrderStatus === "DELIVERED"
+        ? "active"
+        : ""
+    }">
+
+      <div class="order-tracking-dot"></div>
+
+      <div>Delivered</div>
+
+    </div>
+
+  </div>
+
+</div> 
         `;
 
       })
