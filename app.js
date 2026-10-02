@@ -2061,10 +2061,17 @@ function renderCustomerOrders(
                 </div>
 
                 <div class="account-order-date">
-                  ${escapeHTML(
-                    createdAt
-                  )}
-                </div>
+  ${escapeHTML(
+    createdAt
+  )}
+</div>
+
+<div class="account-order-date">
+  Updated:
+  ${escapeHTML(
+    updatedAt
+  )}
+</div>
 
               </div>
 
