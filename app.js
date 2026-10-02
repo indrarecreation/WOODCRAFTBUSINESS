@@ -1318,3 +1318,820 @@ function escapeHTML(value) {
     );
 
 }
+/* =========================================================
+   CUSTOMER ACCOUNT / OTP LOGIN
+========================================================= */
+
+let customerSessionToken =
+  localStorage.getItem(
+    "woodcraftCustomerSession"
+  ) || "";
+
+let customerProfile = null;
+
+
+/* =========================================================
+   OPEN ACCOUNT
+========================================================= */
+
+async function openAccount() {
+
+  const modal =
+    document.getElementById(
+      "accountModal"
+    );
+
+  if (!modal) {
+    return;
+  }
+
+  modal.style.display = "flex";
+
+  /* -------------------------------------------------------
+     CHECK EXISTING SESSION
+  ------------------------------------------------------- */
+
+  if (customerSessionToken) {
+
+    try {
+
+      await loadCustomerAccount();
+
+      return;
+
+    } catch (error) {
+
+      console.log(
+        "Stored customer session is invalid."
+      );
+
+      customerSessionToken = "";
+
+      localStorage.removeItem(
+        "woodcraftCustomerSession"
+      );
+    }
+  }
+
+  showAccountLogin();
+}
+
+
+/* =========================================================
+   CLOSE ACCOUNT
+========================================================= */
+
+function closeAccount() {
+
+  const modal =
+    document.getElementById(
+      "accountModal"
+    );
+
+  if (modal) {
+    modal.style.display = "none";
+  }
+}
+
+
+/* =========================================================
+   SHOW LOGIN VIEW
+========================================================= */
+
+function showAccountLogin() {
+
+  const loginView =
+    document.getElementById(
+      "accountLoginView"
+    );
+
+  const otpView =
+    document.getElementById(
+      "accountOtpView"
+    );
+
+  const profileView =
+    document.getElementById(
+      "accountProfileView"
+    );
+
+  if (loginView) {
+    loginView.style.display = "block";
+  }
+
+  if (otpView) {
+    otpView.style.display = "none";
+  }
+
+  if (profileView) {
+    profileView.style.display = "none";
+  }
+}
+
+
+/* =========================================================
+   SHOW OTP VIEW
+========================================================= */
+
+function showAccountOTP() {
+
+  const loginView =
+    document.getElementById(
+      "accountLoginView"
+    );
+
+  const otpView =
+    document.getElementById(
+      "accountOtpView"
+    );
+
+  const profileView =
+    document.getElementById(
+      "accountProfileView"
+    );
+
+  if (loginView) {
+    loginView.style.display = "none";
+  }
+
+  if (otpView) {
+    otpView.style.display = "block";
+  }
+
+  if (profileView) {
+    profileView.style.display = "none";
+  }
+}
+
+
+/* =========================================================
+   SHOW ACCOUNT PROFILE
+========================================================= */
+
+function showAccountProfile() {
+
+  const loginView =
+    document.getElementById(
+      "accountLoginView"
+    );
+
+  const otpView =
+    document.getElementById(
+      "accountOtpView"
+    );
+
+  const profileView =
+    document.getElementById(
+      "accountProfileView"
+    );
+
+  if (loginView) {
+    loginView.style.display = "none";
+  }
+
+  if (otpView) {
+    otpView.style.display = "none";
+  }
+
+  if (profileView) {
+    profileView.style.display = "block";
+  }
+}
+
+
+/* =========================================================
+   BACK TO EMAIL
+========================================================= */
+
+function backToAccountEmail() {
+
+  const otpInput =
+    document.getElementById(
+      "accountOtp"
+    );
+
+  if (otpInput) {
+    otpInput.value = "";
+  }
+
+  const message =
+    document.getElementById(
+      "otpMessage"
+    );
+
+  if (message) {
+    message.textContent = "";
+  }
+
+  showAccountLogin();
+}
+
+
+/* =========================================================
+   SEND CUSTOMER OTP
+========================================================= */
+
+async function sendCustomerOTP() {
+
+  const emailInput =
+    document.getElementById(
+      "accountEmail"
+    );
+
+  const message =
+    document.getElementById(
+      "accountMessage"
+    );
+
+  const button =
+    document.getElementById(
+      "sendOtpButton"
+    );
+
+  if (!emailInput) {
+    return;
+  }
+
+  const email =
+    emailInput.value
+      .trim()
+      .toLowerCase();
+
+  if (!email) {
+
+    if (message) {
+      message.textContent =
+        "Please enter your email address.";
+    }
+
+    return;
+  }
+
+  if (
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+      email
+    )
+  ) {
+
+    if (message) {
+      message.textContent =
+        "Please enter a valid email address.";
+    }
+
+    return;
+  }
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Sending...";
+  }
+
+  if (message) {
+    message.textContent = "";
+  }
+
+  try {
+
+    const response =
+      await postToBackend({
+        action:
+          "requestCustomerOTP",
+
+        email:
+          email
+      });
+
+    if (!response.success) {
+      throw new Error(
+        response.error ||
+        "Unable to send OTP."
+      );
+    }
+
+    if (message) {
+      message.textContent =
+        "OTP sent. Please check your email.";
+    }
+
+    showAccountOTP();
+
+  } catch (error) {
+
+    if (message) {
+      message.textContent =
+        error.message ||
+        "Unable to send OTP.";
+    }
+
+  } finally {
+
+    if (button) {
+      button.disabled = false;
+      button.textContent = "Send OTP";
+    }
+  }
+}
+
+
+/* =========================================================
+   VERIFY CUSTOMER LOGIN
+========================================================= */
+
+async function verifyCustomerLogin() {
+
+  const emailInput =
+    document.getElementById(
+      "accountEmail"
+    );
+
+  const otpInput =
+    document.getElementById(
+      "accountOtp"
+    );
+
+  const message =
+    document.getElementById(
+      "otpMessage"
+    );
+
+  const button =
+    document.getElementById(
+      "verifyOtpButton"
+    );
+
+  if (!emailInput || !otpInput) {
+    return;
+  }
+
+  const email =
+    emailInput.value
+      .trim()
+      .toLowerCase();
+
+  const otp =
+    otpInput.value
+      .trim();
+
+  if (!/^\d{6}$/.test(otp)) {
+
+    if (message) {
+      message.textContent =
+        "Please enter the 6-digit OTP.";
+    }
+
+    return;
+  }
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Verifying...";
+  }
+
+  if (message) {
+    message.textContent = "";
+  }
+
+  try {
+
+    const response =
+      await postToBackend({
+
+        action:
+          "verifyCustomerOTP",
+
+        email:
+          email,
+
+        otp:
+          otp
+
+      });
+
+    if (!response.success) {
+      throw new Error(
+        response.error ||
+        "OTP verification failed."
+      );
+    }
+
+    if (
+      !response.sessionToken
+    ) {
+      throw new Error(
+        "Login session was not created."
+      );
+    }
+
+    /* -----------------------------------------------------
+       SAVE SESSION TOKEN
+    ----------------------------------------------------- */
+
+    customerSessionToken =
+      response.sessionToken;
+
+    localStorage.setItem(
+      "woodcraftCustomerSession",
+      customerSessionToken
+    );
+
+    customerProfile =
+      response.customer || null;
+
+    /* -----------------------------------------------------
+       LOAD ACCOUNT
+    ----------------------------------------------------- */
+
+    await loadCustomerAccount();
+
+  } catch (error) {
+
+    if (message) {
+      message.textContent =
+        error.message ||
+        "OTP verification failed.";
+    }
+
+  } finally {
+
+    if (button) {
+      button.disabled = false;
+      button.textContent =
+        "Verify OTP";
+    }
+  }
+}
+
+
+/* =========================================================
+   LOAD CUSTOMER ACCOUNT
+========================================================= */
+
+async function loadCustomerAccount() {
+
+  if (!customerSessionToken) {
+    throw new Error(
+      "No customer session."
+    );
+  }
+
+  /* -------------------------------------------------------
+     VALIDATE SESSION
+  ------------------------------------------------------- */
+
+  const sessionResponse =
+    await postToBackend({
+
+      action:
+        "validateCustomerSession",
+
+      token:
+        customerSessionToken
+
+    });
+
+  if (
+    !sessionResponse.success
+  ) {
+
+    throw new Error(
+      sessionResponse.error ||
+      "Session is invalid."
+    );
+  }
+
+  /* -------------------------------------------------------
+     LOAD ORDERS
+  ------------------------------------------------------- */
+
+  const ordersResponse =
+    await postToBackend({
+
+      action:
+        "getCustomerOrders",
+
+      token:
+        customerSessionToken
+
+    });
+
+  if (
+    !ordersResponse.success
+  ) {
+
+    throw new Error(
+      ordersResponse.error ||
+      "Unable to load orders."
+    );
+  }
+
+  /* -------------------------------------------------------
+     CUSTOMER PROFILE
+  ------------------------------------------------------- */
+
+  if (
+    customerProfile
+  ) {
+
+    renderCustomerProfile(
+      customerProfile
+    );
+
+  } else {
+
+    customerProfile = {
+
+      Email:
+        sessionResponse.customer.email
+
+    };
+
+    renderCustomerProfile(
+      customerProfile
+    );
+  }
+
+  /* -------------------------------------------------------
+     ORDERS
+  ------------------------------------------------------- */
+
+  renderCustomerOrders(
+    ordersResponse.orders || []
+  );
+
+  showAccountProfile();
+
+  updateAccountButton();
+}
+
+
+/* =========================================================
+   RENDER CUSTOMER PROFILE
+========================================================= */
+
+function renderCustomerProfile(
+  customer
+) {
+
+  const container =
+    document.getElementById(
+      "accountProfile"
+    );
+
+  if (!container) {
+    return;
+  }
+
+  const fields = [
+
+    ["Name", customer.Name],
+
+    ["Email", customer.Email],
+
+    ["Phone", customer.Phone],
+
+    ["Address", customer.Address],
+
+    ["Post Office", customer.PostOffice],
+
+    ["PIN", customer.PIN],
+
+    ["District", customer.District]
+
+  ];
+
+  container.innerHTML =
+    fields
+      .map(function(field) {
+
+        const label =
+          escapeHTML(
+            String(field[0])
+          );
+
+        const value =
+          escapeHTML(
+            String(field[1] || "-")
+          );
+
+        return `
+          <div class="account-profile-row">
+            <div class="account-profile-label">
+              ${label}
+            </div>
+
+            <div class="account-profile-value">
+              ${value}
+            </div>
+          </div>
+        `;
+
+      })
+      .join("");
+}
+
+
+/* =========================================================
+   RENDER CUSTOMER ORDERS
+========================================================= */
+
+function renderCustomerOrders(
+  orders
+) {
+
+  const container =
+    document.getElementById(
+      "accountOrders"
+    );
+
+  if (!container) {
+    return;
+  }
+
+  if (!orders.length) {
+
+    container.innerHTML =
+      "<p>No orders found.</p>";
+
+    return;
+  }
+
+  container.innerHTML =
+    orders
+      .map(function(order) {
+
+        const items =
+          (order.Items || [])
+            .map(function(item) {
+
+              return `
+                <div class="account-order-item">
+
+                  <span>
+                    ${escapeHTML(
+                      String(
+                        item.ProductName || ""
+                      )
+                    )}
+                    ×
+                    ${Number(
+                      item.Quantity || 0
+                    )}
+                  </span>
+
+                  <span>
+                    ₹${Number(
+                      item.Total || 0
+                    ).toFixed(2)}
+                  </span>
+
+                </div>
+              `;
+
+            })
+            .join("");
+
+        const createdAt =
+          order.CreatedAt
+            ? new Date(
+                order.CreatedAt
+              ).toLocaleDateString(
+                "en-IN"
+              )
+            : "-";
+
+        return `
+          <div class="account-order">
+
+            <div class="account-order-header">
+
+              <div>
+
+                <div class="account-order-id">
+                  ${escapeHTML(
+                    String(
+                      order.OrderID || ""
+                    )
+                  )}
+                </div>
+
+                <div class="account-order-date">
+                  ${escapeHTML(
+                    createdAt
+                  )}
+                </div>
+
+              </div>
+
+            </div>
+
+            ${items}
+
+            <div class="account-order-total">
+              Total: ₹${Number(
+                order.Total || 0
+              ).toFixed(2)}
+            </div>
+
+            <div class="account-order-status">
+              Payment:
+              ${escapeHTML(
+                String(
+                  order.PaymentStatus || "-"
+                )
+              )}
+            </div>
+
+            <div class="account-order-status">
+              Order:
+              ${escapeHTML(
+                String(
+                  order.OrderStatus || "-"
+                )
+              )}
+            </div>
+
+          </div>
+        `;
+
+      })
+      .join("");
+}
+
+
+/* =========================================================
+   UPDATE ACCOUNT BUTTON
+========================================================= */
+
+function updateAccountButton() {
+
+  const button =
+    document.getElementById(
+      "accountButton"
+    );
+
+  if (!button) {
+    return;
+  }
+
+  if (customerSessionToken) {
+    button.textContent =
+      "My Account";
+  } else {
+    button.textContent =
+      "My Account";
+  }
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+function logoutCustomer() {
+
+  customerSessionToken = "";
+
+  customerProfile = null;
+
+  localStorage.removeItem(
+    "woodcraftCustomerSession"
+  );
+
+  showAccountLogin();
+
+  const emailInput =
+    document.getElementById(
+      "accountEmail"
+    );
+
+  const otpInput =
+    document.getElementById(
+      "accountOtp"
+    );
+
+  const accountMessage =
+    document.getElementById(
+      "accountMessage"
+    );
+
+  const otpMessage =
+    document.getElementById(
+      "otpMessage"
+    );
+
+  if (emailInput) {
+    emailInput.value = "";
+  }
+
+  if (otpInput) {
+    otpInput.value = "";
+  }
+
+  if (accountMessage) {
+    accountMessage.textContent = "";
+  }
+
+  if (otpMessage) {
+    otpMessage.textContent = "";
+  }
+}
