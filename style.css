@@ -951,3 +951,14 @@ button {
   }
 
 }
+/* =========================================================
+   ACTIVE ORDER TRACKING STEP
+========================================================= */
+
+.order-tracking-step.active .order-tracking-dot {
+  transform: scale(1.25);
+}
+
+.order-tracking-step.active {
+  font-weight: 700;
+}
